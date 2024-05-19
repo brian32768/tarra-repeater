@@ -1,0 +1,4 @@
+---
+# Development machines only
+
+- include: install.yml

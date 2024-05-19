@@ -1,0 +1,249 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+
+; PJSIP version
+
+[general]
+static=yes
+writeprotect=no
+clearglobalvars=no
+
+[globals]
+
+; This IP address has to be set in each phone. 239.0.0.1:1234
+PAGELIST=MulticastRTP/basic/239.0.0.1:1234
+
+; -------------------------- TRUNKS --------------------------
+{{ extn_sip }}
+{{ extn_pstn }}
+
+; ------------------------ SERVICES ------------------------
+{{ valet_parking }}
+{{ autoattendant }} 
+{{ message_recorder }}
+; #include vm-pickup.conf
+{{ extn_phone_hints }}
+
+;------------
+;
+; Shared mailboxes -- these can be attached to BLF / MPK buttons
+; See also phone_hints*.conf and externnotify script
+
+[groupmwi-blink]
+; Make the MWI blink -- we come here from externnotify mwi.py
+exten => _20x,1,Set(vmext=VM${EXTEN})
+ same => n,Set(DEVICE_STATE(Custom:${vmext})=RINGING)
+ same => n,Hangup() 
+
+[groupmwi-off]
+; Make the MWI go dark -- we come here from externnotify mwi.py
+exten => _20x,1,Set(vmext=VM${EXTEN})
+ same => n,Set(DEVICE_STATE(Custom:${vmext})=NOT_INUSE)
+ same => n,Hangup() 
+;
+;------------
+
+;------------
+;
+[vertical-services]
+
+; Dial 0 + extension to go directly into voicemail;
+; you can use these to transfer callers straight into a mailbox.
+exten => _01XX,1,Voicemail(${EXTEN:1},u)
+ same => n,Hangup()
+; Direct dial into shared mailboxes
+exten => _020[12345],1,Voicemail(${EXTEN:1},u)
+ same => n,Hangup()
+
+; Come here from an MPK BLF button, set the prefix to *8
+exten => _*8*20[12345],1,VoicemailMain(${EXTEN:3})
+ same => n,Hangup()
+; From MPK when there are no messages -- not sure about this one. Added for CDS
+exten => _*20[12345],1,VoicemailMain(${EXTEN:1})
+ same => n,Hangup()
+
+; Directed call pickup - dial ** + extension to pick up any ringing phone
+exten => _**1XX,1,NoOp(Directed call pickup)
+ same => n,Pickup()
+ same => n,Hangup()
+
+exten => 196,1,Directory(default,local-extensions,b)
+
+; Go directly to phone trees, for testing
+exten => 197,1,GoTo(phone-tree,s,1)
+exten => 198,1,GoTo(night-mode-tree,s,1)
+exten => 199,1,GoTo(holiday-tree,s,1)
+ 
+; A conference bridge, 50 people can dial into this.
+; There is a DTMF menu of commands; see confbridge.conf
+exten => 200,1,Verbose(1,Conference Bridge)
+ same => n,ConfBridge(200,,conference_call)
+
+; Allow anyone to dial into queues, (201-205)
+;this lets anyone send a call to a queue and it's great for testing.
+include => queue-entry-points
+
+; Multicast paging is really implemented with ConfBridge
+; so refer to the confbridge.conf file for settings.
+exten => 599,1,Answer()
+ same => n,Page(${PAGELIST},d,30)
+ same => n,Hangup()
+
+; Parking slots are reachable at 701-708 here
+include => valet-parking
+
+; Use callerid so you don't have to enter mailbox or password
+exten => 850,1,Answer()
+ same => n,VoicemailMain(100,s)
+ same => n,Hangup()
+
+; Ignore caller id so you can check your voicemail from another phone
+exten => 851,1,Answer()
+ same => n,VoicemailMain()
+ same => n,Hangup()
+
+; Help Desk -- see vastra_support.conf
+exten => 611,1,Goto(local-support,s,1)
+
+; Echo test
+exten => 612,1,Answer()
+ same => n,Playback(demo-echotest)
+ same => n,Echo()
+ same => n,Playback(thank-you)
+ same => n,Hangup()
+
+; E911 Service has been moved to the SIP trunk file of your choice.
+
+exten => i,1,Playback(invalid)
+ same => n,Hangup()
+
+{{ speed_dial }}
+
+;------------
+; If you set "exitcontext=voicemail-exit" in voicemail.conf
+; then this context will process * and 0.
+[voicemail-exit]
+; Catch * in voicemail
+exten => a,1,NoOp(Caller pressed '*' in voicemail.)
+ same => n,Playback(asterisk)
+  same => n,GoTo(outside-calls,100,fdqueue)
+
+; Catch 0 in voicemail
+exten => o,1,NoOp(Caller pressed 0 in voicemail.)
+ same => n,Playback(zero)
+ same => n,GoTo(outside-calls,100,fdqueue)
+
+; --- How we handle Voicemail Live ---
+
+; Call is placed to this context and extension from AGI script "vm_init.sh"
+[call-listener]
+exten => 4451,1,NoOp(Placing auto-answer call to 119)
+  same => n,SIPAddHeader(Call-Info:\;answer-after=0)
+  same => n,Dial(PJSIP/119,10)
+
+[vm]
+; This will send Allison (voicemail) app into the conference bridge.
+exten => _1XX,1,Set(VMCHAN=1)
+; FIXME send to correct voicemail
+ same => n,Voicemail(${EXTEN},u)
+
+; Dynamically create a bridge with no one in it
+; ConfBridge(name_of_bridge, bridge_profile, user_profile, menu)
+exten => _vm1XX,1,NoOp(Creating bridge for ${EXTEN})
+ same => n,ConfBridge(${EXTEN},vm_bridge,vm_local,vm_menu)
+
+; -- menu stuff --
+
+; Listener wants to pick up call that is in voicemail.
+; This comes from menu in confbridge.conf
+exten => pick,1,NoOp(vm_pick callerid=${CALLERID(num)} channel=${CHANNEL})
+ same => n,Set(GLOBAL(PICK${CALLERID(num)})=${CHANNEL})
+ same => n,AGI(vm_pick.py,vm${CALLERID(num)},${CHANNEL})
+
+exten => h,1,GotoIf($["${PICK${CALLERID(num)}}"=="${CHANNEL}"]?cleanup,1)
+ same => n,GotoIf($["${VMCHAN}"=="1"&"${PICK${CALLERID(num)}}"==""]?cleanup,2)
+
+; Listener wants to cancel call that is in voicemail
+exten => cleanup,1,Set(GLOBAL(PICK${CALLERID(num)})=)
+ same => n,AGI(vm_hang.sh,vm${CALLERID(num)})
+
+; --- The world beyond our firewall ---     
+
+[outside-calls]
+; Calls from sip trunks and pri and pstn trunks come into this context.
+; See extensions-sip-trunk.conf, for example.
+
+include => phone-tree
+
+; ** GEO_CEG CALLS ***
+exten => 999,1,Verbose(1,Outside call entry point)
+ same => n,Answer()
+ same => n,Dial(PJSIP/galaxy&PJSIP/gxv3240&PJSIP/spa2000,60)
+ same => n,Hangup()
+
+; ** This is the normal entry point for outside calls. **
+exten => 100,1,Verbose(1,Outside call entry point)
+
+{{ extn_daymode }}
+
+{{ extn_autoattendant }}
+
+; ** Some GoTo's come here from autoattendant code **
+; this avoids sprinkling references to the front desk extension into autoattendant.conf
+exten => 100,20,Voicemail({{ frontdesk_vm }},u)
+
+; ------------------------------------------------------------------------
+[local-extensions]
+
+{{ redirect_call }}
+
+; All 100-199 extensions match this generic pattern
+exten => _1xx,1,Verbose(3,Call to ${EXTEN} State is ${EXTENSION_STATE(${EXTEN})})
+
+{{ extn_custom_dnd }}
+
+; Do database lookups to find proper channel and mailbox This allows
+; isolating the phone's name (e.g. SIP789234897) from its extension (e.g. 110)
+ same => n,Set(ARRAY(channel,hasvoicemail,mailbox)=${ODBC_GET_EXTN_INFO(${EXTEN})})
+
+ same => n,Dial(PJSIP/${channel},20)
+
+; Call did not go through, do we have a mailbox?
+; same => n,GotoIf($["${hasvoicemail}" = "yes"]?havemailbox:callfail)
+; same => n(callfail),Congestion()
+
+ same => n(havemailbox),GotoIf($["${DIALSTATUS}" = "BUSY"]?busy:unavail)
+ same => n(unavail),VoiceMail(100,u)
+ same => n,Hangup()
+ same => n(busy),VoiceMail(100,b)
+ same => n,Hangup()
+
+; ----------------------------------------------------------
+[internal-calls]
+; Phones that are allowed to use full services come here
+{{ outbound_trunk }}
+include => vertical-services
+include => message-recorder
+; Including this lets you dial the front desk.
+include => outside-calls
+include => local-extensions
+
+; ----------------------------------------------------------
+[mobile-calls]
+; Restricted phones come here
+include => vertical-services
+; Including this lets you dial the front desk.
+include => outside-calls
+include => local-extensions
+
+; ----------------------------------------------------------
+[testing]
+; SIPp uses this
+exten => service,1,Verbose(1,SIP test)
+ same => n,Answer()
+ same => n,Wait(8)
+ same => n,Playback(goodbye)
+ same => n,Hangup()
+
+; That's all!

@@ -1,0 +1,7 @@
+---
+
+# We're using the Debian package for mailman, which puts its configuration in /etc/mailman
+# and creates symbolic links from the original place /var/lib/mailman/Mailman.
+
+- name: Configure mailman for this server.
+  template: src=mm_cfg.py.j2 dest=/etc/mailman/mm_cfg.py mode=0644

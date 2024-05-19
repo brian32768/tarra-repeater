@@ -1,0 +1,4 @@
+---
+# - name: Assemble rc.local file from its fragments
+- copy: src=rc_local_fragments dest=/tmp/rc_local_fragments
+- assemble: src=/tmp/rc_local_fragments dest=/etc/rc.local mode=0755 owner=root group=root

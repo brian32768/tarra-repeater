@@ -1,0 +1,59 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+[general]
+bindport=4569           ; The default port to listen on
+;bindaddr=192.168.1.2   ; Listen everywhere by default
+; delayreject=yes
+language=en
+
+bandwidth=medium
+disallow=all
+allow=ulaw
+allow=alaw
+
+maxcallnumbers = 16
+
+; Declare each REMOTE USER here
+
+[community] ; remote username
+type=user
+;auth=md5
+secret=numbygumby
+context=from-vastra-community
+
+; ====================================================================
+; PEERS in the Vastra Community
+
+[bareis] ; Name of remote peer
+type=peer
+host=bareis.wildsong.biz
+auth=md5
+username=community
+secret=numbygumby
+qualify=yes ; monitor to make sure BAREIS is still out there.
+
+[ledson]
+type=peer
+host=ledson.wildsong.biz
+auth=md5
+username=community
+secret=numbygumby
+qualify=yes ; monitor to make sure Ledson is still out there.
+
+[wildsong]
+type=peer
+host=bellman.wildsong.biz
+auth=md5
+username=community
+secret=numbygumby
+qualify=yes ; monitor to make sure Wildsong is still out there.
+
+[cds]
+type=peer
+host=cds.wildsong.biz
+auth=md5
+username=community
+secret=numbygumby
+qualify=yes ; monitor to make sure Wildsong is still out there.
+

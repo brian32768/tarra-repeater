@@ -1,0 +1,2 @@
+### Notify Vastra support that system was rebooted. ###
+/usr/local/sbin/system_rebooted.sh &

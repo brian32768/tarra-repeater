@@ -1,0 +1,14 @@
+---
+- name: We need python3-dev to install some of the pip packages.
+  apt: name=python3-dev
+
+- name: Support_python_virtual_environments
+  pip: name=virtualenv
+
+- name: libmysqlclient-dev is needed to build the mysqlclient python module
+  apt: name=libmysqlclient-dev
+
+- copy: src=requirements.txt dest=/var/lib/vastra/provisioning/
+
+
+

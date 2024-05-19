@@ -1,0 +1,25 @@
+auto lo br0
+iface lo inet loopback
+ 
+# wireless wlan0
+allow-hotplug wlan0
+iface wlan0 inet manual
+ 
+# eth0 connected to the ISP router
+allow-hotplug eth0
+iface eth0 inet manual
+
+# Setup bridge
+iface br0 inet static
+    bridge_ports wlan0 eth0
+
+    address 192.168.1.235
+    netmask 255.255.255.0
+    network 192.168.1.0
+
+## isp router ip, 192.168.1.1 also runs DHCPD ##
+    gateway 192.168.1.1
+    dns-nameservers 192.168.1.1
+
+    up /etc/network/install_firewall.sh
+

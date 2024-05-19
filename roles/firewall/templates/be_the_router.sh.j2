@@ -1,0 +1,40 @@
+#!/bin/bash
+#;           --=======================--
+#;          ***  CHANGES WILL BE LOST ***
+#;           --=======================--
+#;
+#; Edit the version in fogg-ansible and re-provision.
+#
+
+# --- Forwarding table ---
+
+# Can't seem to make this work with "DROP" policy.
+iptables -P FORWARD ACCEPT
+iptables -F FORWARD
+
+# Allow establish connections from WAN to continue
+iptables -A FORWARD -i {{ ifwan }} -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Allow all inside traffic to get out
+iptables -A FORWARD -i {{ iflan }} -o {{ ifwan }} -j ACCEPT
+
+# LAN to the Internet, very restrictive version
+
+#iptables -A FORWARD -i {{ iflan }} -o {{ ifwan }} -p icmp -m state --state NEW -j ACCEPT
+#iptables -A FORWARD -s 192.168.1.0/24 -i {{ iflan }} -o {{ ifwan }} -p tcp -m multiport --dports 22 -m state --state NEW  -j ACCEPT
+#iptables -A FORWARD -s 192.168.1.0/24 -i {{ iflan }} -o {{ ifwan }} -p tcp -m multiport --dports 80,443 -m state --state NEW  -j ACCEPT
+#iptables -A FORWARD -s 192.168.1.0/24 -i {{ iflan }} -o {{ ifwan }} -p tcp -m multiport --dports 8080,8443 -m state --state NEW  -j ACCEPT
+
+# Everything else, log and drop for now
+# this goes through a chain set up in start_firewall.sh
+iptables -A FORWARD -j logging
+# iptables -A FORWARD -j DROP
+
+# -- NAT --
+
+# Internet to LAN
+# port forwarding with NAT
+# iptables -t nat -A PREROUTING -i {{ ifwan }} -p tcp --dport 22043 -m comment --comment "DNAT SSH for .43" -j DNAT --to-destination 10.8.8.43:22
+
+iptables -t nat -A POSTROUTING -o {{ ifwan }} -j MASQUERADE
+

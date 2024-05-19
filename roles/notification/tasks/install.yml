@@ -1,0 +1,59 @@
+---
+- name: Make some folders
+  file: name=/etc/fogg state=directory mode=0755
+- file: name=/usr/local/systemd state=directory mode=0755
+
+- name: Script to send failure notifications
+  copy: src=report_service_failure.py dest=/usr/local/systemd/ mode=0755
+
+- name: Script to send boot notifications
+  copy: src=boot_notice.py dest=/usr/local/systemd/ mode=0755
+
+- name: Script to send phonewall status notifications
+  copy: src=phonewall_notice.py dest=/usr/local/systemd/ mode=0755
+
+- name: Sender library
+  copy: src=send_notification.py dest=/usr/local/systemd/ mode=0644
+
+#- name: Ratelimiter library for notifications
+#  copy: src=ratelimiter.py dest=/usr/local/systemd/ mode=0644
+
+- name: Install virtualenv into the system
+  pip: name=virtualenv
+
+- name: Copy requirements file for virtualenv
+  copy: src=requirements.txt dest=/usr/local/systemd/
+
+#- name: Install python packages into systemd virtualenv.
+#  pip: virtualenv=/usr/local/systemd/venv virtualenv_python=python3 requirements=/usr/local/systemd/requirements.txt
+
+- name: Create settings folder for on_failure
+  file: path=/etc/systemd/system/on_failure@.service.d/ state=directory mode=0755
+
+- name: Create settings folder for boot_notice
+  file: path=/etc/systemd/system/boot_notice.service.d/ state=directory mode=0755
+
+- name: Set up on_failure credentials for SMS notification
+  template: src=twilio.conf.j2 dest=/etc/systemd/system/on_failure@.service.d/twilio.conf mode=0444 owner=root group=root
+
+- name: Set up boot_notice credentials for SMS notification
+  template: src=twilio.conf.j2 dest=/etc/systemd/system/boot_notice.service.d/twilio.conf mode=0640 owner=root group=root
+
+- name: Create settings folder for phonewall (see firewall playbook)
+  file: path=/etc/systemd/system/phonewall.service.d/ state=directory mode=0755
+
+- name: Set up phonewall credentials for SMS notification
+  template: src=twilio.conf.j2 dest=/etc/systemd/system/phonewall.service.d/twilio.conf mode=0640 owner=root group=root
+
+- name: Install on_failure service control file
+  copy: src="on_failure@.service" dest=/lib/systemd/system/ mode=0644
+
+- name: Install boot_notice service control file
+  copy: src="boot_notice.service" dest=/lib/systemd/system/ mode=0644
+
+- name: Tell target to reload systemctl daemons
+  command: systemctl daemon-reload
+
+- name: Enable boot notice service. Runs once at boot.
+  service: name=boot_notice enabled=yes state=stopped
+

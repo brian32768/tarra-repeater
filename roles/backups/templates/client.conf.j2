@@ -1,0 +1,20 @@
+[Service]
+Environment="RSYNC_AUTH_USER={{ rsync_auth_user }}"
+Environment="RSYNC_PASSWORD={{ rsync_password }}"
+Environment="RSYNC_MODULE={{ rsync_module }}"
+Environment="RSYNC_SERVER={{ rsync_server }}"
+Environment="RSYNC_PORT={{ rsync_port }}"
+Environment="DATABASES={{ mysql_databases }}"
+Environment="DATABASE_USER={{ mysql_backup_user }}"
+Environment="DATABASE_PASSWORD={{ mysql_backup_password }}"
+Environment="VOICEMAIL={{ voicemail_storage }}"
+Environment="TARFILES={{ tarfiles }}"
+Environment="REMOVE_LOCAL_FILES=1"
+
+
+# Tell the backup script to run a full nightly backup,
+# otherwise it will just do a test run.
+# FIXME-- I wanted to put this in the backup.timer file but
+# have not figured out how to do that.
+Environment="NIGHTLY_BACKUP=1"
+

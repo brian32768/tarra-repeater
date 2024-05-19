@@ -1,0 +1,7 @@
+---
+# Build the user and secrets files and ship them to dart
+# Test the connection as part of installation
+# The backup script is run as a systemd service on each remote site.
+# A whitelist on the backup server allows access on the port, so
+# whenever a new site is added, the whitelist has to be updated.
+

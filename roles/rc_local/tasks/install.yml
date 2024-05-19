@@ -1,0 +1,2 @@
+---
+- copy: src=system_rebooted.sh dest=/usr/local/sbin/system_rebooted.sh mode=0755

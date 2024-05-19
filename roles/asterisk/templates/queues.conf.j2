@@ -1,0 +1,71 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+;
+; https://wiki.asterisk.org/wiki/display/AST/Building+Queues
+;
+[general]
+persistentmembers = yes
+autofill = yes
+monitor-type = MixMonitor
+updatecdr = no
+shared_lastcall = no
+negative_penalty_invalid = no
+
+; "queue-menu" context here is implemented in autoattendant.conf
+; (which is included in extensions.conf) It is used to create menus to
+; handle single digit DTMF codes from the caller.
+
+[strategy-linear](!)
+context=queue-menu
+musicclass = default
+strategy = linear
+servicelevel=0
+; how long to ring each member in queue before rolling to next person
+timeout = 10
+retry = 0
+timeoutpriority = app
+announce-frequency = 30
+announce-position = no
+
+[strategy-ringall](!)
+musicclass = default
+strategy = ringall
+servicelevel=0
+timeout = 20
+retry = 0
+timeoutpriority = app
+announce-frequency = 0
+announce-position = no
+
+; If all members of a queue are in one of these states
+; then don't put caller into queue at all
+joinempty = unavailable,inuse,paused
+; and kick them out of the queue if agents all leave
+leavewhenempty = unavailable,inuse,invalid,paused
+
+ringinuse = yes
+weight = 1
+
+; regular queues -----------------
+
+[front-desk](strategy-ringall)
+
+[q1](strategy-linear)
+announce=ws-q1
+
+[q2](strategy-linear)
+announce=ws-q2
+
+[q3](strategy-linear)
+announce=ws-q3
+
+[q4](strategy-linear)
+announce=ws-q4
+
+[q5](strategy-linear)
+announce=ws-q5
+
+; You can add custom queues here, then define them in queue_members table
+{{ custom_q1 }}
+{{ custom_q2 }}

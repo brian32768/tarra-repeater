@@ -1,0 +1,6 @@
+---
+- name: Install Apache
+  apt: name=apache2 state=present
+
+- name: Install CDR viewer
+  git: repo=https://github.com/g613/asterisk-cdr-viewer.git dest=/var/www/asterisk-cdr-viewer/

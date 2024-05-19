@@ -1,0 +1,48 @@
+#
+# Configure DNS services
+#
+# ***           CHANGES WILL BE LOST               ***
+# *** Installed from fogg-ansible dhcp-server role ***
+
+dhcp-authoritative
+dhcp-leasefile=/var/lib/misc/dnsmasq.leases
+
+# Tag Supermicro (Bellman)
+dhcp-host=0c:c4:7a,set:supermicro
+
+# Tag any SqueezeBox radios (all one of them!)
+dhcp-host=01:00:04,set:squeezebox
+
+# Tag Grandstream phones
+dhcp-host=00:0b:82,set:grandstream
+
+# Tag Ubiquiti UniFi access points
+dhcp-host=80:2a:a8,set:unifi
+
+# Tag Cisco (Linksys/Sipura) (I have a SPA2000)
+dhcp-host=00:0E:08,set:cisco
+
+# Tag our laptops
+dhcp-host=3c:15:c2,set:apple
+
+{{ dhcp_ranges }}
+
+{{ additional_dhcp_options }}
+
+# Point at the right gateway router
+dhcp-option=option:router,{{ gateway }}
+
+# Specify a DNS server
+dhcp-option=option:dns-server,{{ dns_servers }}
+dhcp-option=option:ntp-server,{{ ntp_servers }}
+
+# Run this script every time a DHCP lease is created or destroyed.
+dhcp-script="{{ dns_dir }}/venv/bin/python {{ dns_dir }}/dnsmasq.py"
+
+# static map from olden days
+
+dhcp-host=00:25:90:F7:37:72,192.168.1.3,bellman-ipmi,24h
+#dhcp-host=00:25:22:C4:0F:B6,192.168.1.4,tern
+#dhcp-host=00:11:32:60:6C:F0,192.168.1.5
+# 192.168.1.6,laysan
+#dhcp-host=54:04:A6:DC:B1:D0,192.168.1.12

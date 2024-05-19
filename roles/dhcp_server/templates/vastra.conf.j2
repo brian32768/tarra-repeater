@@ -1,0 +1,13 @@
+#
+# Configure this host to provide DHCP services
+#
+# ***           CHANGES WILL BE LOST               ***
+# *** Installed from fogg-ansible dhcp-server role ***
+
+# listen on all interfaces by default
+# NB iptables must allow DHCP broadcasts for DHCP to work at all
+#interface=wlan0
+
+domain={{ domain }}
+# add domain to simple host names in /etc/hosts
+expand-hosts

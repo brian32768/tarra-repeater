@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+#  Command line script to open or close the phonewall.
+#  You have to be able to use sudo.
+#  I wrote this wrapper so that I could invooke $phonewall from systemd
+#  and invoke systemctl from here... no recursive loops
+#
+
+cmd=$1
+
+if [ "$cmd" == "0" ]; then
+  # Close the phonewall
+  sudo /var/lib/vastra/firewall/phonewall.sh 0
+  sudo /bin/systemctl stop phonewall.timer
+  exit 0
+fi
+
+if [ "$cmd" == "1" ]; then
+  # Open the phonewall
+  sudo /var/lib/vastra/firewall/phonewall.sh 1
+  sudo /bin/systemctl restart phonewall.timer
+  /var/lib/vastra/systemd/venv/bin/python /var/lib/vastra/systemd/phonewall_notice.py `hostname` /var/lib/vastra/config/admin.list
+  exit 0
+fi
+
+/var/lib/vastra/firewall/phonewall.sh
+
+exit 0

@@ -1,0 +1,24 @@
+server {
+    server_name {{ ssl_sitename }};
+
+    # log_subrequest on
+
+    listen 443 ssl default_server;
+    include snippets/ssl-{{ ssl_sitename }}.conf;
+
+    root   /var/www/{{ ssl_sitename }}/html;
+    index  index.php index.html;
+
+    location ~ \.php {
+        fastcgi_index index.php;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    include /etc/nginx/extras.d/*.conf;
+
+    # for ownCloud
+    add_header Strict-Transport-Security "max-age=15768000; includeSubdomains; ";
+}

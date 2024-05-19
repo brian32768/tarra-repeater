@@ -1,0 +1,9 @@
+[Unit]
+Description=phonewall closer
+
+[Timer]
+Unit=phonewall_close.service
+OnActiveSec=1h
+
+[Install]
+WantedBy=multi-user.target

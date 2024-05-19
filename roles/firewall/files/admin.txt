@@ -1,0 +1,29 @@
+#           --=======================--
+#          ***  CHANGES WILL BE LOST ***
+#           --=======================--
+#
+# Edit the version in vastra-ansible and re-provision.
+
+# Any addresses in this file get full access
+# through the firewall, don't put phones in here.
+
+# Wildsong headquarters on Comcast
+bellman.wildsong.biz
+192.168.1.0/24
+
+# CDS
+50.255.34.0/28
+192.168.89.0/24
+
+# AlseaGeo
+alseageo.wildsong.biz
+
+# Trailpeople
+trailpeople.synology.me
+#  Randy at home
+142.254.67.136
+#  Sofia at home
+108.65.2.232
+
+# Laguna de Santa Rosa 2017-04-11
+99-16-99-98.lightspeed.snrsca.sbcglobal.net

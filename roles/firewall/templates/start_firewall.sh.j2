@@ -1,0 +1,48 @@
+#!/bin/bash
+#;           --=======================--
+#;          ***  CHANGES WILL BE LOST ***
+#;           --=======================--
+#;
+#; Edit the version in fogg-ansible and re-provision.
+#
+#  Populate our firewall subchains
+#  This should be run at boot time
+#
+cd /etc/network/
+
+# Change policy ASAP and hope none of the subsequent rule changes lock us out.
+iptables -P INPUT DROP
+
+# Clear all the dead wood out of the INPUT table.
+iptables -F INPUT
+
+# +-- local firewall rules for this network --
+
+# Always accept everything from loopback
+iptables -I INPUT 1 -j ACCEPT -s 127.0.0.0/16
+
+# Allow established connections, this helps with servers
+iptables -I INPUT 1 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+{{ firewall_local_rules }}
+
+# Make sure the subchains we're about to populate exist.
+# This includes adding the fail2ban and logging subchains.
+/usr/local/sbin/add_subchains.py
+
+# Populate the subchains
+for wl in *_whitelist
+do
+    if [ -e "$wl" ]; then
+	sh $wl
+    fi
+done
+
+# Log everything being dropped, helps a lot with debugging.
+iptables -F logging
+iptables -A logging -m limit --limit 2/min -j LOG --log-prefix "IPTables Packet Dropped: " --log-level 7
+
+# Uncomment this to activate logging after all other rules have failed. Good for audits and debug.
+iptables -A INPUT -j logging
+
+echo "Firewall rules loaded successfully."

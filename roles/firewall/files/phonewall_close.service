@@ -1,0 +1,10 @@
+[Unit]
+Description=phonewall closer
+
+[Service]
+Type=oneshot
+
+ExecStart= /var/lib/vastra/firewall/phonewall.sh 0 ; /var/lib/vastra/systemd/venv/bin/python /var/lib/vastra/systemd/phonewall_notice.py %H
+
+# This is where we keep admin.list
+WorkingDirectory=/var/lib/vastra/config

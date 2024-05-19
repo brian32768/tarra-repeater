@@ -1,0 +1,16 @@
+[Unit]
+Description=clear stuck lines on FXO gateway
+
+[Service]
+Type=simple
+User={{ backup_user }}
+ExecStart=/var/lib/vastra/systemd/venv/bin/python /var/lib/vastra/systemd/fxo.py all
+ExecStatus=/var/lib/vastra/systemd/venv/bin/python /var/lib/vastra/systemd/fxo.py status
+
+# Don't clear lines more often than ???
+StartLimitInterval=30s
+StartLimitBurst=1
+StartLimitAction=none
+
+[Install]
+WantedBy=multi-user.target

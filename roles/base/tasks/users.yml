@@ -1,0 +1,36 @@
+---
+- name: Add system groups
+  action: group name={{ item }} system=yes
+  with_items:
+    - systemd-journal
+
+#- name: Add system users
+#  action: user name={{ item }} system=yes shell=/bin/bash
+#  with_items:
+#    - foggmail
+#- user: name=foggmail group=foggmail    
+
+- name: Add user groups
+  group: name=wildsong
+
+- name: Add user for bwilson
+  user: name=bwilson comment="Brian Wilson" group=wildsong groups=sudo,systemd-journal append=yes update_password=on_create shell=/bin/bash password=$6$h9FLvqUj$rBqwSRhWMS8.Q2erEohH0NQUabvEKc3kTmhMst54wcGFbLBo/UHtbDEfu3r5P0BHeKq7eh3GHHZtsjSGoIxiq1
+
+- name: Allow bwilson to run ansible updates (add sudo permission)
+  copy: src=sudo.bwilson dest=/etc/sudoers.d/ansible mode=0600
+
+- name: Add ssh keys for bwilson
+  authorized_key: user=bwilson key= manage_dir=yes key="{{ item }}"
+  with_file:
+    - id_rsa.pub
+
+- name: Create folder for WWW homes
+  file: name=/var/www state=directory mode=0755 
+
+- group: name=hupi
+- user: name=hupi group=hupi comment="Human Power Institute admin account" update_password=on_create shell=/bin/shell home=/var/www/hupi.org
+
+- user: name=schmidt comment="Theo Schmidt" shell=/bin/bash home=/home/schmidt uid=5001 group=hupi
+
+- user: name=briarwoodsman comment="JW Stephens" shell=/bin/bash home=/home/briarwoodsman uid=5002 group=hupi password=$6$TJZ5O0Pb$DPJP.lbL1WWbLBG98sm75aGh8OpkvQedTKaZ5YLKjR9/RQTVMFdcSibRIMNIflB/xs49PPEY6zjoX9v8l4QY40
+

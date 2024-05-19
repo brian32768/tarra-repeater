@@ -1,0 +1,15 @@
+[Unit]
+   Description=Festival text-to-speech
+   OnFailure=on_failure@%n
+
+[Service]
+   Type=simple
+   User=root
+   Group=root
+   WorkingDirectory=/tmp
+   ExecStart=/usr/bin/festival --server
+   Restart=always
+   RestartSec=180
+
+[Install]
+   WantedBy=asterisk.target

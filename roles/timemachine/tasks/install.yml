@@ -1,0 +1,15 @@
+---
+- name: Install apt packages
+  action: apt name={{ item }}
+  with_items:
+    - mysql-common
+    - libcrack2
+    - libmysqlclient18
+    - avahi-daemon
+
+- name: Enable the services
+  action: service name={{ item }} enabled=yes
+  with_items:
+    - avahi-daemon
+    - netatalk
+

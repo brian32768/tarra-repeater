@@ -1,0 +1,9 @@
+---
+- name: Install munin packages
+  action: apt pkg={{ item }}
+  with_items:
+    - munin-node
+    - munin
+    - snmp
+
+  

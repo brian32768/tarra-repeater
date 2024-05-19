@@ -1,0 +1,9 @@
+---
+# ansible-control-setup.yml
+
+- hosts: default
+  sudo_user: root
+  sudo: yes
+
+  roles:
+  - base

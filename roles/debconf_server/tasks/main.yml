@@ -1,0 +1,24 @@
+---
+- name: Install packages to be a debconf server.
+  action: apt {{ item }}
+  with_items:
+  - debconf
+  - debconf-utils
+  - dnsmasq
+  - tftpd-hpa
+  - apache2
+
+- name: Configure network with a static ip
+  file: src=interfaces dest=/etc/network/
+
+- name: Install netboot
+  unarchive: copy=yes src=netboot.tar.gz dest=/srv/tftp
+
+- name: Configure DHCP server
+  copy: src=pxeboot.conf dest=/etc/dnsmasq.d/
+
+- name: Restart server
+  service: name=dnsmasq state=reloaded
+
+- name: Install preseed file
+  copy: src=preseed.cfg dest=/var/www/d-i/jessie/ 

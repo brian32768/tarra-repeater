@@ -1,0 +1,97 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+;
+; Grandstream GXW4104 FXO 4 port gateway
+; LEDSON -- Calls coming from the Comdial setup come through here.
+
+;------------------------------------------------------------------------
+[inbound-pstn-trunk]
+; INBOUND CALLS VIA FXO LINES FROM COMDIAL -- this is VOICEMAIL ONLY
+
+; -- Ledson extensions --
+; downstairs 101-114
+; upstairs   201-225
+; 250 D st   301-360
+
+exten => _6112,1,Goto(local-extensions,611,1) ; help desk
+exten => _7112,1,Goto(local-extensions,711,1) ; bwilson
+exten => _7772,1,Goto(local-extensions,777,1) ; bbrown
+
+; Other extensions followed by a '2' should go to voicemail
+
+exten => _[12346]XX2,1,Answer()
+ same => n,Set(MAILBOX=${EXTEN:0:3})
+      
+ same => n,Verbose(3,(4 digit call from Comdial CID=${CALLERID})
+ same => n,Voicemail(${MAILBOX},u)
+ same => n,Hangup()
+
+exten => _[12346]XX,1,Answer()
+ same => n,Set(MAILBOX=${EXTEN})
+ same => n,Verbose(3,(3 digit call from Comdial CID=${CALLERID})
+ same => n,Voicemail(${MAILBOX},u)
+ same => n,Hangup()
+
+; '9' $exten '*' or 
+; '9' $exten should go to voicemail menu
+;
+exten => _9[12346]XX*,1,Verbose(3,(Comdial CID={CALLERID}, NUM=${CALLERID(num)})
+ same => n,Answer()
+ same => n,Set(MAILBOX=${EXTEN:1:4})
+ same => n,VoicemailMain(${MAILBOX})
+ same => n,Hangup()
+
+exten => _9[12346]XX,1,Verbose(3,(Comdial CID=${CALLERID}, NUM=${CALLERID(num)})
+ same => n,Set(MAILBOX=${EXTEN:1:4})
+ same => n,Answer()
+ same => n,VoicemailMain(${MAILBOX})
+ same => n,Hangup()
+
+; Voicemail access (no password required if callerid matches)
+; We comes here from voicemail-exit too
+;exten => 850,1,Answer()
+; same => 2,VoicemailMain(s${CALLERID(num)})
+;; same => n,AGI(${CALLERID(num)})
+; same => n,Hangup()
+
+; Voicemail access (exten and password required)
+exten => 8512,1,Answer()
+ same => n,Wait(1)
+ same => n,VoicemailMain()
+ same => n,Hangup()
+
+; I dont think we ever come through these any more.
+exten => _9A,1,Verbose(3,(Received 9A = HANGUP)
+ same => n,Hangup()
+exten => _9,1,Verbose(3,(Received 9 = HANGUP)
+ same => n,Hangup()
+exten => _A,1,Verbose(3,(Received A = HANGUP)
+ same => n,Hangup()
+
+; LEDSON MWI --
+; voicemail.conf has 'externnotify' set to run  "/var/lib/vastra/scripts/mwi.py"
+;
+;  This is now legacy code, it is referenced from the mwi script but nothing
+;  comes here anymore. I left it anyway to avoid weird errors ("context does not exist")
+;
+[send-mwi]
+exten => mwi_state,1,Verbose(3,(${EXTEN}, ${CALLERID}, ${CALLERID(num)})
+; same => n,Set(TONES=${CALLERID(num)})
+; same => n, Wait(1)
+;          SendDTMF(digits, interdigit_time_ms, duration_ms, channel)
+; same => n,SendDTMF(${TONES},100,500)  
+ same => n,Hangup()
+; same => n,Wait(4)
+
+;------------------------------------------------------------------------
+[outbound-pstn-trunk]
+
+; OUTBOUND -- ON THIS SYSTEM THERE IS NO OUTBOUND DIALING VIA COMDIAL
+; YOU NEED TO INCLUDE SIP TRUNK TO DO OUTBOUND DIALING
+
+; If we use one stage mode in the GXW4104
+; then dialing coming out of Asterisk comes
+; straight here when channel SIP/one-stage is used.
+
+

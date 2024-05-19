@@ -1,0 +1,49 @@
+---
+- name: Install fail2ban
+  apt: name=fail2ban
+
+- name: create_whitelist_folder  
+  file: state=directory name=/var/lib/vastra/firewall
+
+- name: install whitelists
+  action: copy src={{ item }} dest=/var/lib/vastra/firewall/
+  with_items:
+    - admin.txt 
+    - iax.txt
+    - twilio_sip.txt
+    - twilio_media.txt
+
+- name: install templated whitelists
+  action: template src={{ item }}.j2 dest=/var/lib/vastra/firewall/{{ item }}
+  with_items:
+    - sip.txt
+
+- name: Set up virtualenv for python-iptables mostly for role/docker
+  copy: src=requirements.txt dest=/var/lib/vastra/firewall/ mode=0644
+- pip: virtualenv=/var/lib/vastra/firewall/venv virtualenv_python=python3 requirements=/var/lib/vastra/firewall/requirements.txt
+
+# Rewrite these py scripts to use python-iptables and move them to vastra dir
+- name: Install python whitelist scripts
+  copy: src=update_whitelists.py dest=/usr/local/sbin/ mode=0755
+- copy: src=add_subchains.py dest=/usr/local/sbin/add_subchains.py mode=0755
+
+- name: Install bash firewall scripts
+  template: src=start_firewall.sh.j2 dest=/etc/network/start_firewall.sh mode=0700
+- template: src=stop_firewall.sh.j2 dest=/etc/network/stop_firewall.sh mode=0700
+- template: src=be_the_router.sh.j2 dest=/etc/network/be_the_router.sh mode=0700
+
+- name: sudoer for phonewall script
+  copy: src=sudoer dest=/etc/sudoers.d/phonewall
+
+- name: phonewall scripts
+  copy: src=phonewall.sh dest=/usr/local/sbin/ mode=0755
+- copy: src=phonewall dest=/usr/local/bin/ mode=0755
+- copy: src=phonewall.php dest=/var/www/html/ mode=0644
+
+- name: Install phonewall timer (which will invoke phonewall_close.service in an hour)
+  copy: src=phonewall.timer dest=/lib/systemd/system/
+
+- name: Install phonewall_close service (which will close firewall)
+  copy: src=phonewall_close.service dest=/lib/systemd/system/
+
+

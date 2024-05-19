@@ -1,0 +1,9 @@
+deb http://debian.osuosl.org/debian/ jessie main non-free
+deb-src http://debian.osuosl.org/debian/ jessie main non-free
+
+deb http://security.debian.org/ jessie/updates main contrib
+deb-src http://security.debian.org/ jessie/updates main contrib
+
+deb http://debian.osuosl.org/debian/ jessie-updates main contrib
+deb-src http://debian.osuosl.org/debian/ jessie-updates main contrib
+

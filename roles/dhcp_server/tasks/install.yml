@@ -1,0 +1,35 @@
+---
+#
+# 2017-04-09 --
+#   For the moment, I assume when we become a DHCP server (via dnsmasq)
+#   that we also will become the local DNS server (also via dnsmasq)
+#
+- name: Add packages
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - dnsmasq
+
+- name: Create folder to hold dnsmasq files
+  file: state=directory mode=0755 name={{ dns_dir }}
+
+- name: Copy files needed for dnsmasq database updater
+  action: copy src={{ item }} dest={{ dns_dir }} mode=0644
+  with_items:
+    - dnsmasq.py
+    - rest.py
+    - unifi.py
+
+- name: Copy executables needed for dnsmasq database updater
+  action: copy src={{ item }} dest={{ dns_dir }} mode=0755
+    - dnsmasq_wrapper.sh
+
+- name: Copy config files needed for dnsmasq database updater
+  action: copy src={{ item }} dest={{ dns_dir }} mode=0644
+  with_items:
+    - requirements.txt
+
+- name: Support_python_virtual_environments
+  pip: name=virtualenv
+
+- name: Set up virtual env so we can use "requests" for REST comm in python.
+  pip: virtualenv=/var/lib/vastra/dns/venv virtualenv_python=python3 requirements=/var/lib/vastra/dns/requirements.txt

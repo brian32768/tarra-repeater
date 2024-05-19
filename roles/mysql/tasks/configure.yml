@@ -1,0 +1,76 @@
+---
+- name: Create folder in /var/lib and put sql files into it.
+  file: name=/var/lib/vastra/sql state=directory
+
+- copy: src=asterisk.sql dest=/var/lib/vastra/sql/
+
+- copy: src=mysql_cdr.sql dest=/var/lib/vastra/sql/
+
+- copy: src=sample-data.sql dest=/var/lib/vastra/sql/
+
+- name: Creating 'asterisk' database.
+  mysql_db:
+    name=asterisk state=present
+    login_user=root login_password={{ mysql_root_password }}
+  register:
+    asterisk_db_create
+
+- name: ODBC configuration
+  copy: src=odbc.ini dest=/etc/odbc.ini mode=0644
+- copy: src=odbcinst.ini dest=/etc/odbcinst.ini mode=0644
+
+# Tables have to be created before users.
+
+- name: Importing main 'asterisk' tables
+  mysql_db:
+    name=asterisk
+    target=/var/lib/vastra/sql/asterisk.sql
+    state=import
+    login_user=root login_password={{ mysql_root_password }}
+  when: asterisk_db_create.changed
+
+- name: Importing 'asterisk' cdr table
+  mysql_db:
+    name=asterisk
+    target=/var/lib/vastra/sql/mysql_cdr.sql
+    state=import
+    login_user=root login_password={{ mysql_root_password }}
+  when: asterisk_db_create.changed
+
+- name: Importing sample data for sippeers and voicemail
+  mysql_db:
+    name=asterisk
+    target=/var/lib/vastra/sql/sample-data.sql
+    state=import
+    login_user=root login_password={{ mysql_root_password }}
+  when: asterisk_db_create.changed
+
+# Reminder: to remove a user you have to use 'drop USER'; flush privileges;'
+# Don't just delete an entry from table 'user' using 'delete from user where user=USER';
+
+#- name: Adding 'brian' user
+#  mysql_user:
+#    login_user=root login_password={{ mysql_root_password }}
+#    name=brian password={{ brian_mysql_password }}
+#    priv="asterisk.*:all"
+
+- name: Adding 'admin' user for phpmyadmin.
+  mysql_user:
+    login_user=root login_password={{ mysql_root_password }}
+    name=admin password={{ php_admin_password }}
+    priv="*.*:all"
+
+# These symbolic links work, my attempts at using nginx conf files failed. FIXME
+- name: Create the link that makes phpmyadmin work
+  file: src=/usr/share/phpmyadmin dest=/var/www/html/phpmyadmin state=link
+
+#- name: Customize pmahomme theme in phpmyadmin
+#  copy: src=images/banner_small.png dest=/usr/share/phpmyadmin/themes/pmahomme/img/logo_left.png
+#- copy: src=images/logo.png dest=/usr/share/phpmyadmin/themes/pmahomme/img/logo_right.png
+
+- name: Add mysql user for backups
+  mysql_user: name={{ mysql_backup_user}} password="{{ mysql_backup_password }}" priv="mysql.*:select,lock tables,event"
+  
+- name: Extend permissions for database backups (mysql database)
+  mysql_user: name={{ mysql_backup_user }} priv="*.*:select,lock tables" append_privs="yes"
+

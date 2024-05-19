@@ -1,0 +1,18 @@
+---
+- name: Install festival package
+  apt: pkg=festival
+
+- name: Install festival systemd service
+  copy: src=festival.service dest=/lib/systemd/system/ mode=0644
+
+- name: Create festival asterisk cache
+  file: name=/var/lib/asterisk/festivalcache state=directory mode=0755
+
+- name: Make festival available to asterisk. Tell it where to cache files.
+  copy: src=festival.conf dest=/etc/asterisk/ mode=0644 owner=root group=vastra-backup
+
+- name: Tell target to reload systemctl daemons
+  command: systemctl daemon-reload
+
+- name: Enable and start the festival server
+  service: name=festival enabled=yes state=started

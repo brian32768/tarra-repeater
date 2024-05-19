@@ -1,0 +1,29 @@
+# **  This file is created by fogg-ansible dhcp-server role,  **
+# **  changes will be lost at next provisioning run.          **
+#
+#  If you don't override the default dhclient.conf settings
+#  and you are running a local DNS server,
+#  then dhclient will overwrite /etc/resolv.conf with
+#  the external DNS (such as Comcast) and you won't be able
+#  to connect to your internal network using names.
+
+# Not 100% sure I want to do this, if I were to send a consistent name
+# (not my full hostname) if the server would give me the same IP even
+# if I change servers? Maybe I want {{ domain }} here instead??
+send host-name = gethostname();
+
+option rfc3442-classless-static-routes code 121 = array of unsigned integer 8;
+
+# If we don't ask DHCP for domain-name-servers then hopefully
+# dhclient will not overwrite /etc/resolv.conf
+
+# DEFAULT:
+#request subnet-mask, broadcast-address, time-offset, routers,
+#	domain-name, domain-name-servers, domain-search, host-name,
+#	dhcp6.name-servers, dhcp6.domain-search,
+#	netbios-name-servers, netbios-scope, interface-mtu,
+#	rfc3442-classless-static-routes, ntp-servers;
+
+request subnet-mask, broadcast-address, time-offset, routers,
+	interface-mtu,
+	rfc3442-classless-static-routes, ntp-servers;

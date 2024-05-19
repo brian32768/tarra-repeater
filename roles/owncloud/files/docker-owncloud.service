@@ -1,0 +1,33 @@
+[Unit]
+Description=Dockerized ownCloud
+
+After=docker.service docker-mysql.service
+Requires=docker.service docker-mysql.service
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker kill owncloud
+ExecStartPre=-/usr/bin/docker rm owncloud
+ExecStartPre=/usr/bin/docker pull pschmitt/owncloud
+
+# NOTES
+# We use nginx as a proxy and don't need to enable HTTPS in the container
+
+ExecStart=/usr/bin/docker run --name=owncloud --link mysql:db \
+  -e 'DB_NAME=owncloud' \
+  -e 'DB_USER=owncloud' \
+  -e 'DB_PASS=BigRedFish' \
+  -e 'ADMIN_USER=admin' \
+  -e 'ADMIN_PASS=wholesome$12' \
+  -e 'TIMEZONE=Americas/Los_Angeles' \
+  -e 'HTTPS_ENABLED=false' \
+  -v /green/owncloud/config:/var/www/owncloud/config \
+  -v /green/owncloud/data:/var/www/owncloud/data \
+  pschmitt/owncloud
+
+[Install]
+Alias=owncloud.service
+WantedBy=multi-user.target

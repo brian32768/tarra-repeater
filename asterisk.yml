@@ -1,0 +1,8 @@
+---
+- hosts: pbx:dev:nuc:odk
+  remote_user: bwilson
+  become: yes
+  become_user: root
+  roles:
+  - base
+  - asterisk

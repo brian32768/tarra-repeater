@@ -1,0 +1,26 @@
+#!/bin/bash
+#;           --=======================--
+#;          ***  CHANGES WILL BE LOST ***
+#;           --=======================--
+#;
+#; Edit the version in fogg-ansible and re-provision.
+#
+#  Tear down the firewall. Not sure when we ever want to do this.
+#
+# Accept anything
+iptables -P INPUT ACCEPT
+iptabels -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+
+# Flush rules
+iptables -F INPUT
+iptables -F OUTPUT
+iptables -F FORWARD
+
+# Flush all the subchains too, just to be consistent
+for wl in *_whitelist
+do
+    iptables -F "$wl"
+done
+
+exit 0

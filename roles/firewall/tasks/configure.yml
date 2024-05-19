@@ -1,0 +1,11 @@
+---
+- name: Compile the whitelists from source
+  command: /usr/local/sbin/update_whitelists.py
+
+#- name: Activate the firewall
+#  command: /etc/network/start_firewall.sh
+
+- name: Tune fail2ban
+  copy: src=fail2ban_jail.conf dest=/etc/fail2ban/jail.conf mode=0600
+
+

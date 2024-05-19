@@ -1,0 +1,38 @@
+---
+- name: Install static web pages
+  file: name=/var/www/html/images state=directory mode=0755
+- copy: src=index.html dest=/var/www/html/index.html mode=0644
+- copy: src=images/database.png dest=/var/www/html/images mode=0644
+- copy: src=images/firewall.png dest=/var/www/html/images mode=0644
+- copy: src=images/logo.png dest=/var/www/html/images mode=0644
+- copy: src=images/banner_small.png dest=/var/www/html/images mode=0644
+- copy: src=images/mail.png dest=/var/www/html/images mode=0644
+- copy: src=images/phone.png dest=/var/www/html/images mode=0644
+
+# You must generate these keys with this command in the files/ folder
+#  command: openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout server.key -out server.crt
+- name: Install self-signed key
+  file: name=/var/lib/vastra/apache state=directory mode=0755 owner=root group=root
+- copy: src=server.key dest=/var/lib/vastra/apache/server.key mode=0640 owner=root group=ssl-cert
+- copy: src=server.crt dest=/var/lib/vastra/apache/server.crt mode=0640 owner=root group=ssl-cert
+
+- name: Activate SSL server
+  copy: src=default-ssl-vastra.conf dest=/etc/apache2/sites-available/default-ssl-vastra.conf
+- apache2_module: name=ssl state=present
+- command: a2ensite default-ssl-vastra.conf
+- command: a2dissite 000-default.conf
+
+- name: Reload Apache service
+  service: name=apache2 state=reloaded
+
+- name: Install phpmyadmin.conf file
+  copy: src=phpmyadmin.conf dest=/etc/apache2/conf-enabled/phpmyadmin.conf
+
+- name: Install Asterisk CDR viwer config files FIXME EMBEDDED MYSQL PASSWORD
+  copy: src=asterisk-cdr-viewer.conf dest=/etc/httpd/conf-enabled/
+- copy: src=acdr_config.inc.php dest=/var/www/asterisk-cdr-viewer/include/
+
+- name: Add roundcube to Apache
+  file: state=link dest=/etc/apache2/conf-enabled/roundcube.conf
+    src=/etc/roundcube/apache.conf
+- copy: src=roundcube.conf.apache dest=/etc/apache2/conf-enabled/roundcube-alias.conf mode=0644

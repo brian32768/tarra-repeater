@@ -1,0 +1,28 @@
+---
+
+# owncloud has packages but their servers are hard to use due to keys
+# and their upgrades break when using packages anyway!
+
+- apt: name=php5
+- apt: name=php5-cgi
+- apt: name=php5-intl
+- apt: name=php5-ldap
+- apt: name=php5-pgsql
+- apt: name=php5-sqlite
+- apt: name=php-xml-parser
+- apt: name=php5-gd
+- apt: name=php5-curl
+- apt: name=php5-json
+- apt: name=php-pclzip
+- apt: name=php5-mysql
+
+- name: Copying owncloud DEB packages to target.
+  copy: src=owncloud-server_8.2.2-1.1_all.deb dest=/tmp/
+- copy: src=owncloud-config-apache_8.2.2-1.1_all.deb dest=/tmp/
+
+- name: Installing owncloud packages.
+  apt: deb=/tmp/owncloud-server_8.2.2-1.1_all.deb
+- apt: deb=/tmp/owncloud-config-apache_8.2.2-1.1_all.deb
+
+- name: Restarting Apache
+  service: name=apache2 state=restarted

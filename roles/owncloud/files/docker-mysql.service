@@ -1,0 +1,24 @@
+[Unit]
+Description=Dockerized MariaDB
+
+After=docker.service
+Requires=docker.service
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+ExecStartPre=-/usr/bin/docker kill mysql
+ExecStartPre=-/usr/bin/docker rm mysql
+ExecStartPre=/usr/bin/docker pull mariadb:latest
+
+ExecStart=/usr/bin/docker run --name=mysql --link mysql:db \
+  -p 3306:3306 \
+  -e 'MYSQL_ROOT_PASSWORD=CHANGE_THIS_SECRET_PASSWORD' \
+  -v /var/lib/mysql:/var/lib/mysql \
+  mariadb:latest
+
+[Install]
+Alias=mysql.service
+WantedBy=multi-user.target

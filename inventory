@@ -1,0 +1,54 @@
+# inventory file
+
+# --------------- HOSTS ---------------
+
+[postgis]
+
+# A vagrant/virtualbox machine that runs the HuPI web site and email
+[hupi]
+#192.168.1.113
+##hub.hupi.org
+
+# The Wildsong PBX and file servers
+[bellman]
+bellman.wildsong.biz
+
+[tern]
+#tern.wildsong.biz
+
+[mojo]
+mojo.wildsong.biz
+
+# A vagrant machine that can be used to test PostGIS/PostgreSQL and GeoServer
+#[postgis]
+#192.168.1.121
+
+# A vagrant machine that can build Asterisk
+[pbxdev]
+#192.168.1.121
+
+# --------------- GROUPS --------------
+
+[all_servers:children]
+bellman
+#tern
+#mojo
+
+[build_hosts:children]
+pbxdev
+
+[pbx:children]
+bellman
+mojo
+
+[web:children]
+hupi
+postgis
+tern
+
+[mail:children]
+hupi
+tern
+
+[mobile:children]
+bellman

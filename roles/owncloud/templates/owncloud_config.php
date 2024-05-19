@@ -1,0 +1,23 @@
+<?php
+$CONFIG = array (
+  'instanceid' => 'oc8n6ih70tb2',
+  'passwordsalt' => 'ws/WFxmup8b6fXKTczhnptjqBz6LMU',
+  'secret' => '{{ owncloud_secret }}',
+  'trusted_domains' => {{ owncloud_trusted_domains }},
+  'datadirectory' => '{{ owncloud_files }}',
+  'overwrite.cli.url' => '{{ owncloud_url }}',
+  'dbtype' => 'mysql',
+  'version' => '9.0.2',
+  'dbname' => 'owncloud',
+  'dbhost' => 'localhost',
+  'dbtableprefix' => 'oc_',
+  'dbuser' => '{{ mysql_owncloud_user }}',
+  'dbpassword' => '{{ mysql_owncloud_password }}',
+  'installed' => true,
+  'maintenance' => false,
+  'mail_from_address' => 'webmaster',
+  'mail_smtpmode' => 'sendmail',
+  'mail_domain' => '{{ owncloud_mail_domain }}',
+  'loglevel' => 2,
+  'trashbin_retention_obligation' => 'auto',
+);

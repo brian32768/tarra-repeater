@@ -1,0 +1,18 @@
+---
+# vagrant_setup.yml -- set up a very basic stripped down server, see VagrantFile.
+# once the "vagrant up" completes then use the setup.yml playbook to install everything else
+
+- hosts: all
+  remote_user: bwilson
+  become: yes
+  become_user: root
+  roles:
+  - base
+
+- hosts: dev
+  remote_user: bwilson
+  become: yes
+  become_user: root
+  roles:
+  - base
+  - development

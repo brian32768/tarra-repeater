@@ -1,0 +1,2 @@
+#!/bin/bash
+/var/lib/vastra/systemd/venv/bin/python /var/lib/vastra/systemd/fxo.py $*

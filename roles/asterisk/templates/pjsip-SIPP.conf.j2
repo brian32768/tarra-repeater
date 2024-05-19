@@ -1,0 +1,35 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+[sipp-lan]
+type = identify
+endpoint = sipp-lan
+match = {{ localip }}
+
+[sipp-lan]
+type = endpoint
+context = testing
+disallow = all
+allow = ulaw
+{{ external_media_address }}
+device_state_busy_at = 1
+aors = sipp-lan
+
+[sipp-wan]
+type = aor
+contact = sip:{{ externip }}
+
+[sipp-wan]
+type = identify
+endpoint = sipp-wan
+match = {{ externip }}
+
+[sipp-wan]
+type = endpoint
+context = testing
+disallow = all
+allow = ulaw
+{{ external_media_address }}
+device_state_busy_at = 1
+aors = sipp-wan
+

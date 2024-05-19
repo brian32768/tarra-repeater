@@ -1,0 +1,11 @@
+---
+- name: Uninstall apache2, it prevents nginx from being installed.
+  apt: name=apache2 state=absent
+
+- name: Install nginx and related packages
+  action: apt pkg={{ item }}
+  with_items:
+    - nginx
+    - fcgiwrap
+    - php5-fpm
+

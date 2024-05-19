@@ -1,0 +1,6 @@
+deb http://ftp.us.debian.org/debian/ jessie non-free
+deb-src http://ftp.us.debian.org/debian/ jessie non-free
+
+deb http://ftp.us.debian.org/debian/ jessie-updates non-free
+deb-src http://ftp.us.debian.org/debian/ jessie-updates non-free
+

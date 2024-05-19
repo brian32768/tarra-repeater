@@ -1,0 +1,36 @@
+---
+#- name: Install newer kernel for NUC5 WiFi (Intel AC-3165)
+#  apt: name=linux-image-4.4.0-0.bpo.1-amd64
+#  register: kernel_upgrade
+#
+#- name: Reboot to load new kernel.
+#  shell: sleep 2 && shutdown -r now 'Ansible triggered reboot'
+#  async: 1
+#  poll: 0
+#  sudo: true
+#  ignore_errors: true
+#  when: kernel_upgrade
+#
+#- name: Waiting for reboot to complete
+#  local_action:
+#    module: wait_for
+#      host={{ inventory_hostname }}
+#      state=started
+#      port=22
+#      delay=15
+#      timeout=300
+#  sudo: false
+
+- name: Add hardware packages for NUC
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - firmware-iwlwifi
+    - firmware-realtek
+    - bluez-tools
+
+# This requires additional hardware
+# - name: NFC support
+#  action: apt pkg={{ item }} force=yes
+#  with_items:
+#    - neard
+#    - neard-tools

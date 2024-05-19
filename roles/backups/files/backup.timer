@@ -1,0 +1,19 @@
+[Unit]
+Description=Run backups daily
+
+[Timer]
+OnCalendar=daily
+
+# We can delay up to an hour
+# This should help with load on the backup server
+AccuracySec=1h
+
+#for testing only
+#OnUnitActiveSec=30s
+#OnBootSec=30s
+
+# True means if we have not run in a few days then run right now to catch up.
+Persistent=false
+
+[Install]
+WantedBy=multi-user.target

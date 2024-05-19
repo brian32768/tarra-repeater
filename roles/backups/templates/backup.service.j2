@@ -1,0 +1,13 @@
+[Unit]
+Description=back up of critical files
+
+[Service]
+Type=simple
+User={{ backup_user }}
+ExecStart=/usr/local/systemd/venv/bin/python /usr/local/systemd/backup.py
+
+[Install]
+WantedBy=multi-user.target
+
+# See also /etc/systemd/system/backup.service.d
+

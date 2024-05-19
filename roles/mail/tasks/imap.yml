@@ -1,0 +1,28 @@
+---
+- name: Install PAM Mysql
+  apt: name=libpam-mysql
+
+- name: Install Cyrus IMAPD and the MySQL plugin for postfix
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - cyrus-imapd
+    - cyrus-admin
+    - cyrus-clients
+    - postfix-mysql
+
+- name: Configure SASL to use PAM (package is sasl2-bin)
+  copy: src=saslauthd-default dest=/etc/default/saslauthd
+- service: name=saslauthd enabled=yes state=restarted
+
+- name: Install Cyrus IMAPD and CYRUS config files
+  copy: src=imapd.conf dest=/etc/imapd.conf
+- copy: src=cyrus.conf dest=/etc/cyrus.conf
+- file: name=/var/lib/vastra/imap state=directory mode=0755 owner=root group=root
+- copy: src=server.pem dest=/var/lib/vastra/imap/server.pem owner=cyrus mode=0600
+- service: name=cyrus-imapd enabled=yes state=restarted
+
+- name: Create the SASL admin account (used w cyradm command)
+  shell: echo phoneme | saslpasswd2 -c admin
+
+# Besides INBOX, users should create "Old", "Work", "Family" and
+#  "Friends" IMAP folders at the same level of hierarchy as the INBOX.

@@ -1,0 +1,54 @@
+---
+# Install the minimum set of packages any Debian server should have on it.
+
+- name: Disable IPV6
+  sysctl: name=net.ipv6.conf.all.disable_ipv6 value=1 reload=yes state=present
+
+- name: Switch to using Squid Proxy; watch squid-deb-proxy log on Bellman.
+  apt: name=squid-deb-proxy-client state=present
+
+- name: Add non-free repository for Intel NUC hardware support
+  apt_repository: repo='deb http://ftp.us.debian.org/debian/ jessie main non-free' state=present
+
+- name: Add backports repository for Roundcube and Intel NUC WiFi hardware.
+  apt_repository: repo='deb http://ftp.us.debian.org/debian/ jessie-backports main' state=present
+
+- name: Install essential packages
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - debconf-utils
+    - postfix
+# postfix will be unconfigured, but installing the package gets rid of exim4
+
+- name: Upgrade Debian to latest version
+  apt: upgrade=dist
+
+- name: Install supporting packages
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - etherwake
+    - ethtool
+    - ipmitool
+    - pwgen
+    - unattended-upgrades
+    - usbmount
+    - python-pip
+    - python3-pip
+    - ntpdate
+    - ntp
+    - rsync
+    - git
+    - curl
+    - unzip
+    - emacs-nox
+    - sox
+    - python3-pyinotify
+    - bleachbit
+
+- name: Install debugging tools
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - tcpdump
+    - strace
+    - ltrace
+

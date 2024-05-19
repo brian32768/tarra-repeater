@@ -1,0 +1,56 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+[general]
+; NB Android phones cannot play wav49 so record 'wav' instead (which is uncompressed!)
+format=wav
+expungeonhangup=yes           ; delete messages marked for deletion on hangup
+pollmailboxes=yes             ; make MWI light work
+;pollmailboxes=no
+pollfreq=30
+{{ externnotify }}
+maxgreet=120
+skipms=3000
+maxsilence=10
+silencethreshold=128
+
+; mute date and time
+envelope=no
+
+; make it sound more mainstream
+nextaftercmd=yes
+
+maxlogins=3
+emaildateformat=%A, %B %d, %Y at %r
+pagerdateformat=%A, %B %d, %Y at %r
+
+{{ exitcontext }}
+
+; -------------------------------------------------------------------------------
+; if IMAP is enabled then it just puts this directly into the mailbox
+; if no IMAP then the email gets sent offsite with this address as the sender
+serveremail={{ vm_sender }}
+fromstring=Vastra
+
+emailsubject=[Voicemail] New msg ${VM_MSGNUM}
+emailbody=Msg for ${VM_NAME}\nfrom ${VM_CALLERID}.\n\nLength: ${VM_DUR}
+emaildateformat=%A, %B %d, %Y at %r
+pagerdateformat=%A, %B %d, %Y at %r
+
+; -------------------------------------------------------------------------------
+; Whether IMAP works or not depends on the currently installed app_voicemail.so module
+; If it is compiled for IMAP then these settings work otherwise they are IGNORED.
+; -------------------------------------------------------------------------------
+; Asterisk tries CRAM-MD5 FIRST then falls back to PLAIN (this slows things down!)
+; Asterisk gets whiny if you try an unencrypted session + PLAIN login
+;imapflags=ssl/novalidate-cert ; allow self-signed certificates
+imapflags=notls
+imapserver=127.0.0.1
+imapgreetings=yes             ; store greeting messages in IMAP
+imapfolder=INBOX
+greetingsfolder=Greetings
+
+; ------------------------------------------------------------------------------
+; Mailboxes are all defined in the asterisk.voicemail mysql table.
+; DON'T put conflicting definitions here, they will fight with the mysql table.
+; ------------------------------------------------------------------------------

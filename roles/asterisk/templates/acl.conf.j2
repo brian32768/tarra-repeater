@@ -1,0 +1,36 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+
+; CLI Commands
+; -----------------------------------------------------------
+;   acl show                         Show all named ACLs configured
+;   acl show <name>                  Show contents of a particular named ACL
+;   reload acl                       Reload configuration file
+
+[manager-whitelist]
+deny=0.0.0.0/0.0.0.0  ; block everything
+{{ acl_permit }}
+
+[twilio-sip-whitelist]
+deny=0.0.0.0/0.0.0.0  ; block everything
+{{ acl_permit }}
+;Twilio SIP
+permit=54.172.60.0/30
+permit=54.244.51.0/30
+permit=54.171.127.192
+permit=54.171.127.193
+permit=54.171.127.194
+permit=54.65.63.192
+permit=54.65.63.193
+permit=54.65.63.194
+permit=54.169.127.128
+permit=54.169.127.129
+permit=54.169.127.130
+permit=54.252.254.64
+permit=54.252.254.65
+permit=54.252.254.66
+permit=177.71.206.192
+permit=177.71.206.193
+permit=177.71.206.194
+

@@ -1,0 +1,21 @@
+[Unit]
+Description=boot notification
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/local/systemd/venv/bin/python /usr/local/systemd/boot_notice.py %H
+
+# This is where we keep admin.list
+WorkingDirectory=/usr/local/systemd/
+
+# Don't send notices more often than every 3 minutes.
+StartLimitInterval=3m
+StartLimitBurst=1
+StartLimitAction=none
+
+
+[Install]
+WantedBy=multi-user.target
+
+# See also /etc/systemd/system/boot_notice.service.d

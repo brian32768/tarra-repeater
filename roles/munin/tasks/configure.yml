@@ -1,0 +1,72 @@
+---
+- name: Install nginx files to make munin work
+  copy: src=munin.conf.nginx dest=/etc/nginx/extras.d/munin.conf
+
+- name: Override default munin.conf file with our own.
+  template: src=munin.conf.j2 dest=/etc/munin/munin.conf mode=0644 owner=root group=root
+
+- name: Override default munin-node.conf file with our own.
+  template: src=munin-node.conf.j2 dest=/etc/munin/munin-node.conf mode=0644 owner=root group=root
+
+- name: Additional munin plugins
+  action: copy src={{ item }} dest=/etc/munin/plugins/{{ item }}
+  with_items:
+    - asterisk
+
+- name: Install Munin plugin for router rate
+  template: src=mikrotikifrate.j2 dest=/etc/munin/plugins/mikrotikifrate_{{ mikrotik_router }}_{{ mikrotik_interface }} mode=0755
+  when: ("{{ mikrotik_router }}" is defined)
+
+- name: Configure munin
+  command: munin-node-configure
+
+- name: Remove unwanted links
+  action: file name=/etc/munin/plugins/{{ item }} state=absent
+  with_items:
+    - apc_nis
+    - df_inode
+    - entropy
+    - exim_mailstats
+    - fw_conntrack
+    - fw_forwarded_local
+    - fw_packets
+    - http_loadtime
+    - interrupts
+    - irqstats
+    - if_err_eth1
+    - if_err_eth2
+    - if_err_eth3
+    - if_eth1
+    - if_eth2
+    - if_eth3
+    - nfs4_client
+    - nfs_client
+    - nfsd
+    - nfsd4
+    - ntp_kernel_err
+    - ntp_kernel_pll_freq
+    - ntp_kernel_pll_off
+    - ntp_offset
+    - open_inodes
+    - postfix_mailqueue
+    - postfix_mailvolume
+    - users
+
+- name: Remove unwanted web pages
+  action: file name=/var/cache/munin/www/{{ item }}.html state=absent
+  with_items:
+    - exim-day
+    - exim-month
+    - exim-week
+    - exim-year
+    - nfs-day
+    - nfs-month
+    - nfs-week
+    - nfs-year
+
+- name: Restart munin node so it will re-read config
+  service: name=munin-node state=restarted
+
+- name: Reload http service
+  service: name=nginx state=reloaded
+

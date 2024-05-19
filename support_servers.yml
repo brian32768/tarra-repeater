@@ -1,0 +1,9 @@
+---
+- hosts: support
+  remote_user: bwilson
+  become: yes
+  become_user: root
+  roles:
+  - base
+  - debconf_server
+

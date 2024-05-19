@@ -1,0 +1,53 @@
+---
+# There is a separate user/secret for each remote site
+
+# Put the home directory outside /home, to make backups easier
+- name: Create system group
+  group: name={{ backup_group }} 
+
+- name: Create system user
+  user: name={{ backup_user }} system=yes system=yes group={{ backup_group }} {{ additional_groups }}
+
+- name: Add admin user to the backup group
+  user: name=bwilson groups={{ backup_group }} append=yes
+
+- name: Install apt packages needed for backups
+  action: apt name={{ item }}
+  with_items:
+    - rsync
+    - python-mysqldb
+
+- name: Create folders as needed
+  action: file name={{ item }} state=directory mode=0755
+  with_items:
+    - /usr/local/systemd/
+    - /etc/systemd/system/backup.service.d/
+
+- name: Install backup script
+  copy: src=backup.py dest=/usr/local/systemd/backup.py mode=0755
+
+- name: Install environment settings file
+  template: src=client.conf.j2 dest=/etc/systemd/system/backup.service.d/client.conf mode=0444
+
+# FIXME for each site, I need to add a module to /etc/rsyncd.conf on backups.wildsong.biz
+
+# https://wiki.archlinux.org/index.php/Systemd/Timers
+# systemctl list-timers --all
+
+- name: Install service file
+  template: src=backup.service.j2 dest=/lib/systemd/system/backup.service mode=0644
+
+- name: Set up systemd timer file to run nightly
+  copy: src=backup.timer dest=/lib/systemd/system/backup.timer mode=0644
+
+- name: Do the daemon-reload
+  command: systemctl daemon-reload
+
+- name: Enable the backup service
+  service: name=backup.service enabled=yes
+
+#- name: Run the backup script to test it the first time it is installed.
+#  service: name=backup.service state=started
+
+- name: Enable and start backup timer
+  service: name=backup.timer state=started enabled=yes

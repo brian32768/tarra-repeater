@@ -1,0 +1,10 @@
+---
+- name: Add LDAP packages
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - slapd
+    - ldap-utils
+    - ldapscripts
+    - ldap-git-backup
+    - python-ldap
+    - phpldapadmin

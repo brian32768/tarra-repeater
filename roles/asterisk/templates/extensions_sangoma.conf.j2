@@ -1,0 +1,29 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+;
+;  Sangoma Vega 50 Europa 4 port FXO
+;
+; ------------------------------------------------------------------------
+[inbound-pstn-trunk]
+; INCOMING CALLS FROM PSTN FXO lines
+
+exten => _0201,1,Verbose(1,Call from ${CALLERID()})
+ same => n,Goto(outside-calls,100,1)
+
+; ------------------------------------------------------------------------
+[outbound-pstn-trunk]
+; OUTGOING CALLS TO PSTN FXO TRUNK
+
+; We don't want the "+" in front for PSTN!
+exten => _+NXXNXXXXXX,1,Goto(${EXTEN:1},1)
+
+;  7 digit call: add 1 + area code
+exten => _NXXXXXX,1,Goto(1{{ area_code }}${EXTEN},1)
+
+; 10 digit call: add 1
+exten => _NXXNXXXXXX,1,Goto(1${EXTEN},1)
+
+; FORCE caller id to be our number so that people can dial back
+exten => _1NXXNXXXXXX,1,Dial(SIP/v50-01/${EXTEN:1},60,f(${CALLERID(num,{{ force_callerid }})}))
+

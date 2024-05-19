@@ -1,0 +1,11 @@
+---
+-- name: Configure OpenVPN for AlseaGeo
+   action: copy src={{ item }} dest=/etc/openvpn/ mode=0600
+   with_items:
+     - alseageo.conf
+     - alseageo_ca.crt
+     - alseageo_client.crt
+     - alseageo_client.key
+
+
+

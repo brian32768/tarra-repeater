@@ -1,0 +1,9 @@
+---
+- name: Set up daily ntpdate run
+  copy: src=ntpdate dest=/etc/cron.daily/
+
+- name: Accept syslog entries from our LAN
+  copy: src=rsyslog.conf dest=/etc/
+
+- name: Create systemd journal
+  file: name=/var/log/journal state=directory mode=0750 owner=root group=systemd-journal

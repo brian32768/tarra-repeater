@@ -1,0 +1,17 @@
+---
+#- name: ZeroConfNetworking - probably superfluous
+#  apt: avahi-daemon
+#- apt: libnss-mdns
+# Don't think i want this one
+# - apt: avahi-discover
+
+- name: Add Networking and WiFi packages
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - dnsmasq
+    - bridge-utils
+    - wpasupplicant
+    - wireless-tools
+    - hostapd
+
+

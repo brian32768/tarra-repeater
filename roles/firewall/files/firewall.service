@@ -1,0 +1,12 @@
+[Unit]
+Description=Vastra Custom Firewall
+
+[Service]
+Type=OneShot
+RemainAfterExit=yes
+ExecStart=/var/lib/vastra/systemd/start_firewall.sh
+ExecStop=/var/lib/vastra/systemd/stop_firewall.sh
+WorkingDirectory=/etc/network
+
+[Install]
+WantedBy=multi-user.target

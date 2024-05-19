@@ -1,0 +1,2 @@
+### Start the festival text-to-speech server ###
+festival --server &

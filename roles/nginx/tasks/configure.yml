@@ -1,0 +1,65 @@
+---
+- name: Create generic static web content directory
+  file: name=/var/www/{{ sitename }}/html/images state=directory mode=0755
+
+- name: Install generic Fogg Bank static web pages.
+  action: copy src={{ item }} dest=/var/www/{{ sitename }}/html/ mode=0644
+  with_items:
+    - index.php
+    - phpinfo.php
+
+- name: Install static images into generic server directory
+  action: copy src=images/{{ item }} dest=/var/www/{{ sitename }}/html/images/ mode=0644
+  with_items:
+    - call_log.png
+    - database.png
+    - firewall.png
+    - logo.png
+    - banner_small.png
+    - mail.png
+    - monitor.png
+    - phone.png
+    - wiki.png
+
+- name: Add system groups
+  action: group name={{ item }} system=yes
+  with_items:
+    - ssl-cert
+
+# FIXME generate a new key/cert pair for each server (or use REAL SSL credentials!)
+#  command: openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout server.key -out server.crt
+- name: Install self-signed key and certificate
+  file: name=/etc/ssl/nginx state=directory mode=0755 owner=root group=root
+- file: name=/etc/ssl/private state=directory mode=0755 owner=root group=root
+- copy: src=server.crt dest=/etc/ssl/nginx/ssl-{{ ssl_sitename }}.crt mode=0640 owner=root group=ssl-cert
+- copy: src=server.key dest=/etc/ssl/private/ssl-{{ ssl_sitename }}.key mode=0640 owner=root group=ssl-cert
+
+- name: Install basic nginx config
+  copy: src=nginx.conf dest=/etc/nginx/
+
+- name: Make a place for extra config files
+  file: name=/etc/nginx/extras.d state=directory mode=0755 owner=root group=root
+
+- name: Install mailman config (might not be used, depends on host_vars)
+  copy: src=mailman.conf dest=/etc/nginx/snippets/
+
+- name: Install a script to help debug cgi-bin environment.
+  copy: src=showenv dest=/var/lib/mailman/cgi-bin/ mode=0755
+
+- name: Set up http access. Either points at generic directory or custom
+  template: src=SITENAME.conf.j2 dest=/etc/nginx/sites-available/{{ sitename }}.conf
+
+- name: Set up https access. Either points at generic directory or custom
+  template: src=SITENAME_ssl.conf.j2 dest=/etc/nginx/sites-available/{{ ssl_sitename }}_ssl.conf
+
+- name: Enable configuration
+  file: path=/etc/nginx/sites-enabled/default state=absent
+- file: src=/etc/nginx/sites-available/{{ sitename }}.conf dest=/etc/nginx/sites-enabled/{{ sitename }}.conf state=link
+- file: src=/etc/nginx/sites-available/{{ ssl_sitename }}_ssl.conf dest=/etc/nginx/sites-enabled/{{ ssl_sitename }}_ssl.conf state=link
+
+- name: Reference our SSL keys
+  template: src=ssl_snippet_SITENAME.conf.j2 dest=/etc/nginx/snippets/ssl-{{ ssl_sitename }}.conf
+
+- name: Reload http service
+  service: name=nginx state=reloaded
+

@@ -1,0 +1,7 @@
+---
+- name: Persons to notify. Shared between boot and failure services right now.
+  template: src=admin.list.j2 dest=/usr/local/systemd/admin.list mode=0644
+
+- name: Short list for testing without cost. (Only sends email.)
+  copy: src=test.list dest=/usr/local/systemd/ mode=0644
+

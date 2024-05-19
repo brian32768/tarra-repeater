@@ -1,0 +1,48 @@
+# {{ sitename }} server configuration
+#
+server {
+       server_name {{ sitename }};
+       listen 80 default_server;
+       listen [::]:80 default_server;
+
+       root /var/www/{{ sitename }}/html;
+
+       # Add index.php to the list if you are using PHP
+       index index.html index.htm index.php;
+
+       location / {
+       		# First attempt to serve request as file, then
+		  # as directory, then fall back to displaying a 404.
+		    try_files $uri $uri/ =404;
+       }
+
+       location ~ \.php {
+        	fastcgi_index index.php;
+		fastcgi_pass unix:/var/run/php5-fpm.sock;
+        	fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        	fastcgi_param PATH_INFO $fastcgi_script_name;
+       		include fastcgi_params;
+       }
+
+       {{ nginx_mailman_conf }}
+}
+
+
+# Virtual Host configuration for example.com
+#
+# You can move that to a different file under sites-available/ and symlink that
+# to sites-enabled/ to enable it.
+#
+#server {
+#	listen 80;
+#	listen [::]:80;
+#
+#	server_name example.com;
+#
+#	root /var/www/example.com;
+#	index index.html;
+#
+#	location / {
+#		 try_files $uri $uri/ =404;
+#		 }
+#}

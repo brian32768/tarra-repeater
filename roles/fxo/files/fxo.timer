@@ -1,0 +1,8 @@
+[Unit]
+Description=check and clear FXO lines periodically
+
+[Timer]
+OnActiveSec=7200
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+#;           --=======================--
+#;          ***  CHANGES WILL BE LOST ***
+#;           --=======================--
+#;
+#; Edit the version in vastra-ansible and re-provision.
+
+www-data ALL=NOPASSWD:/sbin/iptables,/var/lib/vastra/firewall/phonewall.sh
+
+
+

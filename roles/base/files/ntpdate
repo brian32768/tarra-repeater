@@ -1,0 +1,3 @@
+#!/bin/sh
+# Would be better to point at our router
+/usr/sbin/ntpdate 0.debian.pool.ntp.org

@@ -1,0 +1,4 @@
+---
+- name: Set up manager account for Tomcat. FIXME set more accounts and passwords
+  copy: src=tomcat-users.xml dest=/etc/tomcat8/ owner=root mode=0600
+

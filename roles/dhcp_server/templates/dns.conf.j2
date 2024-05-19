@@ -1,0 +1,20 @@
+#
+# Configure this host to provide DHCP services
+#
+# ***           CHANGES WILL BE LOST               ***
+# *** Installed from fogg-ansible dhcp-server role ***
+
+# only provide services on the LAN port
+#interface=eth0
+
+# Dont read /etc/resolv.conf or poll it for changes
+no-resolv
+no-poll
+# Instead, use these servers
+{{ dns_forwarders }}
+
+cache-size=300
+clear-on-reload
+#log-queries
+
+

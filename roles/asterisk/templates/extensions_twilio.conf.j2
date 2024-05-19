@@ -1,0 +1,57 @@
+; This file is managed in Ansible, changes here will be lost on next reload.
+; Edit the version in fogg-ansible and re-provision.
+; --------------------------------------------------------------------------
+[inbound-sip-trunk]
+; INCOMING CALLS FROM SIP TRUNK
+
+exten => _{{ twilio_sip_number }},1,{{ extn_sip_destination }}
+
+; Testing "programmable voice"
+exten => galaxy,1,NoOp(Call coming in for Galaxy))
+ same => n,Goto(outside-calls,999,1)
+
+; ------------------------------------------------------------------------
+[outbound-sip-trunk]
+; OUTGOING CALLS TO SIP TRUNK
+
+include => {{ dialplan }}
+
+; Speeddial a test number at Twilio +1(650)489-4546
+exten => _498,1,Verbose(Dialing Twilio test number)
+ same => n,Dial(PJSIP/+16504894546@twilio)
+
+; Speeddial a test number at Twilio 1(415)475-8378 #
+exten => _499,1,Verbose(Dialing to Twilio test number)
+ same => n,Dial(PJSIP/+14154758378@twilio)
+
+; ------------------------------------------------------------------------
+
+[dial9]
+; This is the plan for calling with a preceding '9'
+; Just remove the '9' and send to directdial
+exten => _9NXXXXXX,1,Goto(directdial,${EXTEN:1},1)
+exten => _9NXXNXXXXXX,1,Goto(directdial,${EXTEN:1},1)
+exten => _91NXXNXXXXXX,1,Goto(directdial,${EXTEN:1},1)
+
+[directdial]
+; Plan for calling directly (no preceding '9')
+; (used by dial9, too.)
+
+; E911 Service, call 933 to test
+exten => _9XX,1,Dial(PJSIP/${EXTEN}@twilio,60,f(${CALLERID(num,+17078270001)}))
+
+; International calls no one wants so far
+;exten => _011.,1,Dial(SIP/${EXTEN}@twilio)
+
+; 7 digit dialing: add 1 + area code
+exten => _NXXXXXX,1,Goto(1{{ area_code }}${EXTEN},1)
+
+; 10 digit dialing:add 1
+exten => _NXXNXXXXXX,1,Goto(1${EXTEN},1)
+
+; Add the '+' as required by Twilio
+exten => _1NXXNXXXXXX,1,Goto(+${EXTEN},1)
+
+; Force caller id to be the Twilio number
+exten => _+1NXXNXXXXXX,1,Dial(PJSIP/${EXTEN}@twilio,60,f(${CALLERID(num,{{ twilio_sip_number }})}))
+

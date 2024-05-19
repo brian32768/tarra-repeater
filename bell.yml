@@ -1,0 +1,9 @@
+---
+- hosts: pbx
+  remote_user: bwilson
+  become: yes
+  become_user: root
+  roles:
+  - dhcp_server
+  - firewall
+  - docker

@@ -1,0 +1,35 @@
+#!/bin/bash
+#;           --=======================--
+#;          ***  CHANGES WILL BE LOST ***
+#;           --=======================--
+#;
+#; Edit the version in fogg-ansible and re-provision.
+#
+#  Add rules to enable traffic to flow over OpenVPN
+#  This is run from openvpn when the tunnel comes up
+#
+
+# args: cmd tun_dev tun_mtu link_mtu ifconfig_local_ip ifconfig_remote_ip [ init | restart ]
+
+# ansible note, move to host_vars!
+LAN=eth0
+dev=$1
+
+# Accept any and all traffic over OpenVPN to this machine
+iptables -I INPUT -i $dev -j ACCEPT 
+
+# Allow OpenVPN traffic for AGI to be forwarded
+# This might need to be in an openvpn script
+iptables -A FORWARD -i $LAN -o $dev -j ACCEPT
+iptables -A FORWARD -i $dev -o $LAN -j ACCEPT
+
+iptables -t nat -A POSTROUTING -o $dev -j MASQUERADE
+
+# FIXME PLEASE THIS IS ONLY FOR AGI RIGHT NOW
+echo "#Created automatically by openvpn-up.sh#" > /etc/dnsmasq.d/alseageo.conf
+echo "server=/alseageo.com/10.1.10.3"   >> /etc/dnsmasq.d/alseageo.conf
+echo "server=/www.alseageo.com/8.8.8.8" >> /etc/dnsmasq.d/alseageo.conf
+
+# sigh, config files are only read on startup, sigh, hope this works
+systemctl stop dnsmasq
+systemctl start dnsmasq

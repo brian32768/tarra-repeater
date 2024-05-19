@@ -1,0 +1,82 @@
+---
+- name: Supporting packages
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - maildir-utils
+    - libgsm1
+    - libxslt1.1
+    - libjansson4
+    - libiksemel-utils
+    - libresample1
+    - libical1a
+    - libsrtp0
+    - libpjsua2
+
+- name: Supporting packages I probably don't want installed
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - libspeexdsp1
+    - liblua5.1-0
+    - libspandsp2
+    - libneon27
+    - libneon27-gnutls
+    - libsqlite0
+
+- name: Alembic is for database upgrades
+  pip: name=alembic
+
+- name: Make required asterisk folders
+  action: file name={{ item }} state=directory mode=0755 
+  with_items:
+    - /etc/asterisk
+    - /var/lib/asterisk
+    - /var/lib/asterisk/agi-bin
+    - /var/lib/asterisk/documentation
+    - /var/lib/asterisk/firmware
+    - /var/lib/asterisk/images
+    - /var/lib/asterisk/keys
+    - /var/lib/asterisk/moh
+    - /var/lib/asterisk/mp3
+    - /var/lib/asterisk/phoneprov
+    - /var/lib/asterisk/rest-api
+    - /var/lib/asterisk/sounds
+    - /var/lib/asterisk/sounds/en
+    - /var/lib/asterisk/static-http
+
+- name: Make Asterisk folders
+  action: file name={{ item }} state=directory mode=0755 
+  with_items:
+    - /var/spool/asterisk
+    - /var/spool/asterisk/dictate
+    - /var/spool/asterisk/monitor
+    - /var/spool/asterisk/recording
+    - /var/spool/asterisk/system
+    - /var/spool/asterisk/tmp
+    - /var/spool/asterisk/voicemail
+    - /usr/lib/asterisk
+    - /usr/lib/asterisk/modules
+    - /var/run/asterisk
+    - /var/log/asterisk
+    - /var/log/asterisk/cdr-csv
+
+- name: Folders for custom asterisk scripts
+  file: state=directory mode=0755 name=/usr/local/asterisk
+
+- name: Install custom asterisk scripts
+  action: copy src={{ item }} dest=/usr/local/asterisk mode=0755
+  with_items:
+    - mwi.py
+    - update_all_mwi.py
+    - verbose_http.py
+    - prune_voicemail.sh
+
+- name: Run the voicemail pruner daily
+  cron: name="Prune voicemail" special_time=daily job="/usr/local/asterisk/prune_voicemail.sh"
+
+# Dont do this today, it's slow and might break and all that.
+
+#- name: Asterisk binaries FIXME ON PBX MACHINES ONLY
+#  unarchive: copy=yes dest=/ src=asterisk_binaries.tar.gz
+#- name: Asterisk sounds  creates=/var/lib/asterisk/sounds/en/zombies.wav
+#  unarchive: copy=yes dest=/ src=asterisk_sounds.tar.gz
+

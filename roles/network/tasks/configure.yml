@@ -1,0 +1,23 @@
+---
+#- name: Set up our basic ethernet interface including firewall - DHCP client
+#  copy: src=interfaces dest=/etc/network/
+#
+#- name: Set up our wlan0 interface
+#  copy: src=interfaces-wlan dest=/etc/network/interfaces.d/
+
+- name: Set up our bridge - FIXME IP ADDRESSES EMBEDDED HERE
+  copy: src=interfaces-bridge dest=/etc/network/interfaces
+
+- name: Set our WPA key
+  copy: src=wpa_psk dest=/etc/hostapd/
+  
+- name: Become a WiFi access point
+  copy: src=hostapd.conf dest=/etc/hostapd/
+
+- name: Enable hostap service
+  copy: src=hostapd_default dest=/etc/default/hostapd
+
+- name: Reload hostapd service
+  service: name=hostapd state=reloaded
+
+

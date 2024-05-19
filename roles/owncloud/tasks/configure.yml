@@ -1,0 +1,9 @@
+---
+
+- name: Install MySQL systemd service file
+  copy: src=mysql.service dest=/lib/systemd/system/ mode=0644
+  copy: src=owncloud.service dest=/lib/systemd/system/ mode=0644
+
+
+
+

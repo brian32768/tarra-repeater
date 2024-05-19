@@ -1,0 +1,61 @@
+---
+# Install the packages required to build components including
+#   asterisk
+
+- name: Basic build tools
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - build-essential
+    - devscripts
+    - gawk
+    - python-gobject
+
+- name: Asterisk build dep
+  apt: name=asterisk
+       state=build-dep
+
+- name: Linux headers
+  apt: name=linux-headers-amd64
+
+- name: Supporting tool packages
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - wget
+    - subversion
+    - doxygen
+    - uw-mailutils
+    - gdb
+    - ddd
+
+- name: Dev packages, many of these for Asterisk builds
+  action: apt pkg={{ item }} force=yes
+  with_items:
+    - ncurses-dev
+    - libncurses5
+    - libxml2
+    - libmpg123-dev
+    - libpam0g-dev
+    - libltdl-dev
+    - libc-client2007e-dev
+    - libneon27-gnutls-dev
+    - libghc-gtk-dev
+
+- name: Tools installed from pip  packages
+  action: pip executable=pip name={{ item }}
+  with_items:
+    - httpie
+    - nose
+    - coverage
+
+# You should download and unpack the latest Asterisk sources
+# and then run this on the target.
+- name: Install additional Asterisk prereq packages
+  command: contrib/scripts/install_prereq install
+  args:
+    chdir: /home/vagrant/src/asterisk/asterisk-14.0.0-beta1/
+
+- name: Get MP3 addon for asterisk build
+  command: contrib/scripts/get_mp3_source.sh
+  args:
+    chdir: /home/vagrant/src/asterisk/asterisk-13.8.0
+    creates: addons/mp3/mpg123.h

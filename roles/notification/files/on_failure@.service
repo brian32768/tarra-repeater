@@ -1,0 +1,17 @@
+[Unit]
+Description=Failure Notification for %i
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/systemd/venv/bin/python /usr/local/systemd/report_service_failure.py %i %H
+
+# This is where we keep admin.list
+WorkingDirectory=/usr/local/systemd/
+
+# Don't send notices more often than every 1/2 hour.
+StartLimitInterval=30m
+StartLimitBurst=1
+StartLimitAction=none
+
+# See also /etc/systemd/system/on_failure@.service.d
