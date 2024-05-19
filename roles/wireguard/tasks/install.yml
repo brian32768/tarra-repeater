@@ -1,0 +1,8 @@
+---
+- name: Install apt packages
+  action: apt name={{ item }}
+  with_items:
+    - wireguard
+- template: src=wg0.conf.j2 dest=/etc/wireguard/wg0.conf mode=0700
+
+

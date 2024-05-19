@@ -1,0 +1,8 @@
+---
+-- name: Configure Wireguard
+   action: copy src={{ item }} dest=/etc/wireguard/ mode=0600
+   with_items:
+     - wg0.conf
+
+
+
