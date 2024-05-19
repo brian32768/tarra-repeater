@@ -18,43 +18,6 @@ lan: "192.168.1.0/24"
 iflan: "eth0"
 ifwan: "eth1"
 
-# == dhcp-server ==
-
-dns_dir: "/var/lib/dns"
-
-# We are the router, there is no separate gateway
-gateway: "{{ localip }} # This host is also the gateway"
-
-# this is dhcp option to tell clients what dns to use, can be comma delimited list
-dns_servers: "{{ localip }}"
-
-# this is dhcp option to tell clients what ntp to use, can be comma delimited list
-#ntp_servers: "208.201.242.2,216.218.254.202" # Santa Rosa area
-ntp_servers: "{{ localip }}"
-
-# this tells dnsmasq how to forward dns to Internet
-dns_forwarders: "# Forward addtional DNS requests to Comcast\n\
-server=75.75.75.75\n\
-server=75.75.76.76\n\
-"
-
-# These devices get long leases so that they don't media glitch as often
-dhcp_iot_range: "tag:grandstream,tag:unifi,tag:cisco,tag:squeezebox,192.168.1.40,192.168.1.49,255.255.255.0,24h"
-
-# These devices come and go from time to time and we'd like to notice that
-# so they get a medium length lease
-dhcp_computer_range: "tag:apple,192.168.1.100,192.168.1.149,255.255.255.0,2h"
-
-# Use a really short lease so we can try to do presence detection
-# Hmmm, we should be able to detect devices in the Unifi logs too...
-dhcp_other_range: "192.168.1.150,192.168.1.199,255.255.255.0,10m"
-
-dhcp_ranges: "dhcp-range={{ dhcp_iot_range}}\n\
-dhcp-range={{ dhcp_computer_range}}\n\
-dhcp-range={{ dhcp_other_range}}\n\
-"
-additional_dhcp_options: "dhcp-option=tag:grandstream,66,\"http://192.168.1.2:8080/\""
-
 # == firewall ==
 
 firewall_local_rules: "# Local LAN\n\
@@ -87,18 +50,6 @@ sitename: "HOST"
 ssl_sitename: "{{ hostname }}"
 ssl_fqdn: "{{ fqdn_hostname }}"
 
-# == MySQL ==
-mysql_root_password: "CHANGE_THIS_SECRET_PASSWORD"
-mysql_asterisk_password: "fncylngpsswrd"
-php_admin_password: "nothingtoseehere"
-mysql_backup_user: "backups"
-mysql_backup_password: "go_in_reverse"
-mysql_databases: "\\"asterisk phonelog gsprov owncloud yaris wildsong_wiki\\""
-
-# Mediawiki
-wiki_sitename: "{{ FoggBank }}"
-wiki_mail_contact: "{{ mail_from }}"
-
 # == BACKUPS ==
 rsync_server: BACKUPS.DOMAIN.COM
 rsync_port: 22
@@ -111,107 +62,3 @@ backup_user:  "vastra-backup"
 backup_group: "vastra-backup"
 voicemail_storage: "/var/spool/asterisk/voicemail"
 
-# == Owncloud ==
-owncloud_files: /owncloud/data
-
-# Mail configuration - we are a simple relay host
-postfix_fqdn:   "{{ sitename }}"
-mailman_aliases: ""
-postfix_myhostname:   "myhostname = {{ fqdn_hostname }}"
-postfix_mydestination: "#mydestination = HOST.DOMAIN.COM, localhost"
-postfix_relayhost: "# Make email work via GMAIL (see sasl_passwd file)\n\
-relayhost = [smtp.gmail.com]:587"
-additions_to_aliases: "\n\
-root:           USERNAME\n\
-helpdesk:	USERNAME\n\
-USERNAME:	USERNAME@DOMAIN\n\
-"
-nginx_mailman_conf: "#nginx_mailman_conf -- not what is supposed to go here!"
-
-# == Twilio == Wildsong account
-# Elastic Trunk "Wildsong_SIP"
-have_twilio_trunk: 1
-#twilio_sip_trunk_sid: "TKa9992c496177bd7792c443fb6ce"
-termination_sip_uri: "DOMAIN.pstn.twilio.com"
-twilio_sip_number: "+18005551212"
-twilio_sip_username: "HOST_termination"
-twilio_sip_password: "2BghwYuC3o8IW3GtXbITSXXOBkWec"
-extn_sip_destination: "Goto(outside-calls,100,1)"
-
-# SMS Notification "DOMAIN_Notification"
-twilio_sms_number: "+18005551212"
-twilio_sms_api_sid: "SK8d870ebf2e3d46317a467c1c96c7e"
-twilio_sms_api_secret: "cRioiG9Ct8KqQABxTCnphjgTZ1rgm"
-notification_recipients: "[ \n\
-    { \n\
-	\"name\" : \"John Q Smith by SMS\", \n\
-	\"phone_number\" : \"+1MYNUMBER\", \n\
-	\"email\" : \"MYNUMBER@tmomail.net\" \n\
-    }, \n\
-    { \n\
-	\"name\" : \"JOHN SMITH by email\", \n\
-	\"email\" : \"jsmith@{{ domain }}\" \n\
-    } \n\
-]"
-
-# == Asterisk configuration ==
-ari_password: "bonbon"
-redirect_call: "exten=>551212,1,Goto(outside-calls,100,1)
-exten=>7078270001,1,Goto(outside-calls,100,1)
-exten=>17078270001,1,Goto(outside-calls,100,1)"
-force_callerid: "{{ twilio_sip_number }}"
-
-helpdesk: Dial(PJSIP/gxv3240&PJSIP/galaxy,30)
-helpdesk_vm: 100
-frontdesk_vm: 100@default
-vm_sender: "{{ mail_from }}"
-
-# Special features
-valet_parking: "#include valet_parking.conf"
-autoattendant_file: "autoattendant_generic.conf"
-autoattendant: "#include {{ autoattendant_file }}"
-message_recorder: "#include message_recorder.conf"
-externnotify: ""
-
-exitcontext: "; catch * and 0 in voicemail\n\
-exitcontext=voicemail-exit"
-
-# This means dial directly without a preceding '9'. See extensions_twilio.conf
-dialplan: directdial
-  
-extn_daymode: ""
-
-# When I include the mobile phone here alas it seems to go to voicemail
-extn_autoattendant: "; Ring these phones long enough for Brian to answer.\n\
-same => n,Dial(PJSIP/gxv3240&PJSIP/spa2000,40)\n\
-; Then go into voicemail\n\
-same => n,Voicemail(100@default,u)"
-  
-# extensions.conf
-extn_sip: "#include extensions_twilio.conf"
-extn_pstn: ""
-speed_dial: "#include speed_dial.conf\ninclude => speed-dial"
-outbound_trunk: "include => outbound-sip-trunk"
-phone_hints: "phone_hints_{{ hostname }}"
-extn_phone_hints: "#include phone_hints.conf"
-
-# this is to implement a custom MPK DND button
-extn_custom_dnd: ""
-
-# pjsip.conf
-externip: "PUBLIC_ADDRESS"
-localnet  : "localnet={{ lan }}"
-sip_trunk : "#include sip_twilio.conf"
-pstn_trunk: ""
-
-external_media_address: "external_media_address = {{ externip }}"
-external_signaling_address: "external_signaling_address = {{ externip }}"
-
-# acl.conf
-acl_permit: "permit={{ lan }}"
-
-# queues.conf
-custom_q1: ""
-custom_q2: ""
-
-sip_whitelist: "50.247.101.86\n50.250.254.58\n"

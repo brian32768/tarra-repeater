@@ -1,7 +1,0 @@
----
-- name: Mailman
-  action: apt pkg={{ item }} 
-  with_items:
-    - mailman
-    - postgrey
-    - clamav

@@ -1,9 +1,0 @@
----
-- name: Install apt packages
-  action: apt name={{ item }}
-  with_items:
-    - openvpn
-    - easy-rsa
-- template: src=openvpn-up.sh.j2 dest=/etc/network/openvpn-up.sh mode=0700
-- template: src=openvpn-down.sh.j2 dest=/etc/network/openvpn-down.sh mode=0700
-

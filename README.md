@@ -1,13 +1,16 @@
-## Provisioning a vagrant machine
+# tarra-repeater
 
-This sets up a new machine from scratch to be a complete asterisk based phone server.
-It was a year long project that I embarked upon but ultimately abandoned. I pushed
-it to this github repo and I'm about to fork it to turn it into a ham radio
-SVXlink repeater system. Small change LOL.
+## Provisioning an svxlink repeater server
 
+This sets up a new machine from scratch to be a complete svxlink based radio repeater system.
 
+I just forked it from https://github.com/brian32768/fogg-ansible
+which was a year-long project that I embarked upon but ultimately
+abandoned.
 
-### What to do
+Now I will scrub out all irrelevant references...
+
+## Old notes follow
 
 cd to folder containing the machine
 
@@ -95,3 +98,4 @@ I need to figure out a clean way to avoid password prompts.
 To update bellman
 
 ansible-playbook -i inventory setup.yml
+

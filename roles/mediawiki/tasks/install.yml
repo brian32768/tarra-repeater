@@ -1,9 +1,0 @@
----
-- name: Install mediawiki package
-  apt: name=mediawiki
-
-# NB Backup script uses this name (wiki) to do backups
-- name: Install mediawiki credentials
-  mysql_user: name=wiki password={{ wiki_mysql_password }} priv="wiki.*:select,insert,delete,update"
-
-

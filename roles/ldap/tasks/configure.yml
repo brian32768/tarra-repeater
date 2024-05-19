@@ -1,9 +1,0 @@
----
-# These symbolic links work, my attempts at using nginx conf files failed. FIXME
-- name: Create the link that makes phpldapadmin work
-  file: src=/usr/share/phpldapadmin dest=/var/www/html/phpldapadmin state=link
-
-# FIXME
-# Change example.com in config.php to wildsong.biz
-
-

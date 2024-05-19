@@ -1,45 +1,33 @@
 ---
 # setup.yml -- set up a server completely
 
-- hosts: mysql
-  remote_user: bwilson
+- hosts: svxlink
+  remote_user: link
   become: yes
   become_user: root
   roles:
-  - mysql 
+  - svxlink
 
 - hosts: web
-  remote_user: bwilson
+  remote_user: link
   become: yes
   become_user: root
   roles:
   - nginx
 
-#- hosts: mobile
-#  war-driving
-
-- hosts: pbx
+- hosts: repeater
   remote_user: bwilson
   become: yes
   become_user: root
   roles:
   - base
-  - mysql
+  - svxlink
   - nginx
-  - dhcp_server
-  - docker
-  - ldap
-  - mail
-#  - firewall
-#  - phone-provisioning
-#  - owncloud
-#  - mediawiki
+  - firewall
 #  - munin
   - notification
   - backups
-#  - fxo (for ledson)
   - festival
-  - asterisk
 
 # This is used to build a local debian cache server
 #- hosts: support
@@ -59,17 +47,6 @@
   - hardware
   # This sets up the wired and wireless interfaces
   - network
-
-- hosts: all_pbx_servers
-  remote_user: bwilson
-  become: yes
-  become_user: root
-  roles:
-  - backups
-  - notification
-  - festival
-  - asterisk
-  - fxo
 
 - hosts: dev
   remote_user: bwilson

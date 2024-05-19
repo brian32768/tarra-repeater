@@ -2,23 +2,19 @@
 - name: Create generic static web content directory
   file: name=/var/www/{{ sitename }}/html/images state=directory mode=0755
 
-- name: Install generic Fogg Bank static web pages.
+- name: Install generic web pages.
   action: copy src={{ item }} dest=/var/www/{{ sitename }}/html/ mode=0644
   with_items:
-    - index.php
-    - phpinfo.php
+    - index.html
 
 - name: Install static images into generic server directory
   action: copy src=images/{{ item }} dest=/var/www/{{ sitename }}/html/images/ mode=0644
   with_items:
-    - call_log.png
     - database.png
     - firewall.png
     - logo.png
     - banner_small.png
-    - mail.png
     - monitor.png
-    - phone.png
     - wiki.png
 
 - name: Add system groups
@@ -39,9 +35,6 @@
 
 - name: Make a place for extra config files
   file: name=/etc/nginx/extras.d state=directory mode=0755 owner=root group=root
-
-- name: Install mailman config (might not be used, depends on host_vars)
-  copy: src=mailman.conf dest=/etc/nginx/snippets/
 
 - name: Install a script to help debug cgi-bin environment.
   copy: src=showenv dest=/var/lib/mailman/cgi-bin/ mode=0755

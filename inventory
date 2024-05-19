@@ -1,54 +1,29 @@
 # inventory file
 
 # --------------- HOSTS ---------------
+# List each host here
 
-[postgis]
+[wickiup]
+#192.168.123.12
+tenrec.local
 
-# A vagrant/virtualbox machine that runs the HuPI web site and email
-[hupi]
-#192.168.1.113
-##hub.hupi.org
-
-# The Wildsong PBX and file servers
-[bellman]
-bellman.wildsong.biz
-
-[tern]
-#tern.wildsong.biz
-
-[mojo]
-mojo.wildsong.biz
-
-# A vagrant machine that can be used to test PostGIS/PostgreSQL and GeoServer
-#[postgis]
-#192.168.1.121
-
-# A vagrant machine that can build Asterisk
-[pbxdev]
-#192.168.1.121
+[stn3464]
+stn3464.local
 
 # --------------- GROUPS --------------
+# Add each host to the relevant groups
 
-[all_servers:children]
-bellman
-#tern
-#mojo
+[all_repeaters:children]
+wickiup
+stn3464
 
 [build_hosts:children]
-pbxdev
+tarradev
 
-[pbx:children]
-bellman
-mojo
+[svxlink:children]
+wickiup
+stn3464
 
-[web:children]
-hupi
-postgis
-tern
+[irlp:children]
+stn3464
 
-[mail:children]
-hupi
-tern
-
-[mobile:children]
-bellman

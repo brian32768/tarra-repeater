@@ -8,13 +8,13 @@ Vagrant.configure(2) do |config|
 
 # What kind of host is this?
 
- # Deployed machine: web | postgis
+ # Deployed machine: web
 
   config.vm.define "web"
   # Disable the shared folder
   #config.vm.synced_folder(".", nil, :disabled => true, :id => "vagrant-root")
 
- # Development machine: dev | pbxdev
+  # Development machine: dev
   
   #config.vm.define "dev"
   # Share source folders
@@ -29,7 +29,7 @@ Vagrant.configure(2) do |config|
 #      "all_groups:children" => ["pbx_group", "dev_group"]
 #    }
   
-    ansible.playbook = "../fogg-ansible/vagrant_setup.yml"
+    ansible.playbook = "../tarra-repeater/vagrant_setup.yml"
   end
 
   

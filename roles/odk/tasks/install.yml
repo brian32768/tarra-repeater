@@ -1,9 +1,0 @@
----
-- name: Install Java and Tomcat, needed for ODK Aggregate
-  action: apt pkg={{ item }} force=yes
-  with_items:
-   - tomcat8
-   - tomcat8-admin
-   - tomcat8-user
-   - libmysql-java
-

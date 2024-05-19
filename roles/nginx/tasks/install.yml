@@ -6,6 +6,5 @@
   action: apt pkg={{ item }}
   with_items:
     - nginx
-    - fcgiwrap
-    - php5-fpm
+
 

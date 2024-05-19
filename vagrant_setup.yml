@@ -3,7 +3,7 @@
 # once the "vagrant up" completes then use the setup.yml playbook to install everything else
 
 - hosts: all
-  remote_user: bwilson
+  remote_user: link
   become: yes
   become_user: root
   roles:

@@ -1,17 +1,7 @@
 DO A BACKUP BEFORE REPROVISIONING
 
-BACKUP asterisk files
-Sometimes I hack away at asterisk files without updating ansible.
+BACKUP all files
 
-BACKUP mysql
-including asterisk
+Does the firewall still get loaded correctly?
 
-I just modified the dhcp-server role
-and added the vpn role
 
-Is there really a database?
-Is there something running on port 5000 to listen to dnsmasq.py ?
-
-Does the firewall still get loaded correctly now that I am a router?
-
-DOCKER - the needs to update firewall so that docker containers work
